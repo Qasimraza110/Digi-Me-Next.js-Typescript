@@ -1,0 +1,53 @@
+Bilkul 👇 yahaan pe maine har **React Hook** ka **simple Roman Urdu explanation** likha hai taake tumhe interview aur concept dono easily samajh aa jaayein 👇
+
+---
+
+### ⚛️ **React Hooks Roman Urdu Explanation**
+
+| **Hook**              | **Purpose (Roman Urdu mein)**                                                                                                                              | **Example**                                                    |
+| --------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------- |
+| **useState()**        | Ye hook functional component ke andar state banane ke liye use hota hai. Matlab hum variable jese `count` banate hain jo UI ke sath change hota rahta hai. | `const [count, setCount] = useState(0);`                       |
+| **useEffect()**       | Ye side effects ke liye use hota hai — jaise API call karni ho, timer lagana ho, ya document title change karna ho render hone ke baad.                    | `useEffect(() => { fetchData(); }, []);`                       |
+| **useContext()**      | Ye data ko share karne ke liye hota hai bina props ko har component mein manually bhejne ke. Jaise theme ya user info globally access karna.               | `const theme = useContext(ThemeContext);`                      |
+| **useRef()**          | Ye DOM elements (jaise input field) ko directly access karne ke kaam aata hai, ya aisi value store karne ke liye jo change ho lekin re-render na kare.     | `const inputRef = useRef(null);`                               |
+| **useMemo()**         | Ye expensive calculation ko cache karta hai taake har render pe dobara na chale. Sirf tab chalega jab dependency change hogi.                              | `const result = useMemo(() => slowFunc(num), [num]);`          |
+| **useCallback()**     | Ye functions ko cache karta hai taake har render pe naya function na bane (performance improve hoti hai). Mostly child components ke sath use hota hai.    | `const handleClick = useCallback(() => doSomething(), []);`    |
+| **useReducer()**      | Ye useState ka advanced version hai jab complex state logic ho — jaise multiple actions handle karne ho (Redux jesa kaam).                                 | `const [state, dispatch] = useReducer(reducer, initialState);` |
+| **useLayoutEffect()** | Ye useEffect jesa hi hai lekin ye render se pehle run hota hai. Mostly use hota hai jab DOM measurement ya layout adjustment karni ho.                     | `useLayoutEffect(() => { ... }, []);`                          |
+
+---
+
+### 🔍 Simple Example samajhne ke liye:
+
+```jsx
+import React, { useState, useEffect } from 'react';
+
+function Counter() {
+  const [count, setCount] = useState(0);
+
+  useEffect(() => {
+    console.log("Count change hua:", count);
+  }, [count]);
+
+  return (
+    <div>
+      <h2>Count: {count}</h2>
+      <button onClick={() => setCount(count + 1)}>Increase</button>
+    </div>
+  );
+}
+
+export default Counter;
+```
+
+**Roman Urdu Explanation:**
+
+* `useState` → `count` banaya jiska initial value 0 hai.
+* `setCount` → value change karne ke liye function hai.
+* `useEffect` → jab `count` change hota hai to ye console pe message show karta hai.
+
+---
+
+Chaho to main tumhe **custom hook** ka simple Roman Urdu example bhi de sakta hoon (jaise `useFetch` ya `useLocalStorage`).
+Kya doon next?
+    

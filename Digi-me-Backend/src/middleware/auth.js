@@ -12,7 +12,7 @@ function authRequired(req, res, next) {
     return res.status(401).json({ message: 'Invalid token' });
   }
 }
-
+   
 function issueToken(userId) {
   const payload = { sub: userId };
   const opts = { expiresIn: '7d' };

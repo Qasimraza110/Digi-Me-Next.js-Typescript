@@ -27,5 +27,3 @@ This MVP version focuses on providing seamless profile creation, secure authenti
 **QR Code Generation:** QRCode.js
 
 ---
-
-💡 *Future versions will include analytics, premium customization, and in-app monetization for advanced users.*

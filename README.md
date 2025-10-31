@@ -39,6 +39,6 @@ Digi-Me is a digital profile system where users can create, manage, and share th
 
 | Frontend | Backend | Database | Auth | Uploads |
 |---------|---------|----------|------|--------|
-| Next.js / typrscript | Node.js / Express | MongoDB | JWT + Google OAuth | Cloudinary |
+| Next.js / typrscript | Node.js / Express | MongoDB | JWT + Google OAuth | multers |
 
 

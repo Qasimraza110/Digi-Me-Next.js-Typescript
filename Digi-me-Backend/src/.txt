@@ -1,0 +1,42 @@
+GET http://localhost:5000/api/health/db
+
+
+POST http://localhost:5000/api/auth/register
+
+{
+  "email": "test@example.com",
+  "password": "123456",
+  "username": "qasimrazadev"
+}
+
+
+POST http://localhost:5000/api/auth/login
+POST http://localhost:5000/api/auth/request-password-reset
+
+GET /api/profile/me
+PUT /api/profile/me
+{
+  "username": "qasimrazadev",
+  "bio": "Full Stack Developer",
+  "phone": "03123456789",
+  "socialLinks": ["https://linkedin.com/in/qasim"],
+  "businessLinks": ["https://myportfolio.com"]
+}
+
+DELETE /api/profile/me
+GET http://localhost:5000/api/profile/public/username/qasimrazadev
+GET http://localhost:5000/api/profile/public/id/:id
+
+GET http://localhost:5000/api/saved
+POST http://localhost:5000/api/saved
+{
+  "targetUserId": "670123abc4567890abcdef12"
+}
+DELETE http://localhost:5000/api/saved
+
+GET http://localhost:5000/api/qr/me
+POST http://localhost:5000/api/qr/scan
+{
+  "qrData": "http://localhost:3000/u/68f8ce21e3a2ad309f706c45"
+}
+

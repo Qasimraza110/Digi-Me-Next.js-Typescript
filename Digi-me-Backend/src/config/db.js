@@ -4,11 +4,11 @@ let isConnected = false;
 
 async function connectToDatabase() {
   if (isConnected) return;
-  const mongoUri = process.env.MONGO_URI || process.env.MONGODB_URI;
+  const mongoUri = process.env.MONGODB_URI || process.env.MONGO_URI;
 
   if (!mongoUri) {
-    console.error('❌ Missing MongoDB connection string. Please set MONGO_URI in your .env file.');
-    throw new Error('Missing MONGO_URI');
+    console.error('❌ Missing MongoDB connection string. Please set MONGODB_URI in your .env file.');
+    throw new Error('Missing MONGODB_URI');
   }
 
   const mongooseOptions = {

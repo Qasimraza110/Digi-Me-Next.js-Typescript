@@ -9,7 +9,8 @@ const {
   deleteMyProfile,
   getPublicProfileByUsername,
   getPublicProfileById,
-  searchProfiles,
+  updateAccountSettings,
+  getAccountSettings,
 } = require('../controllers/profileController');
 
 const uploadDir = path.join(__dirname, '..', 'uploads');
@@ -28,12 +29,28 @@ const upload = multer({ storage });
 const router = Router();
 
 router.get('/me', authRequired, getMyProfile);
-router.put('/me', authRequired, upload.single('avatar'), updateMyProfile);
+router.put(
+  "/me",
+  authRequired,
+  upload.fields([
+    { name: "avatar", maxCount: 1 },
+    { name: "coverAvatar", maxCount: 1 }
+  ]),
+  updateMyProfile
+);
+
 router.delete('/me', authRequired, deleteMyProfile);
 
 router.get('/public/username/:username', getPublicProfileByUsername);
 router.get('/public/id/:id', getPublicProfileById);
-router.get('/search', searchProfiles);
+// router.get('/search', searchProfiles);
+
+router.get("/account/me", authRequired, getAccountSettings);
+
+// UPDATE account info
+router.put("/account/update",authRequired, updateAccountSettings);
+
+
 
 module.exports = router;
 

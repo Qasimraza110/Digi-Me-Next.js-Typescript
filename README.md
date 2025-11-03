@@ -1,5 +1,5 @@
 # 📇 Digi-Me — Digital Profile & QR Contact Sharing Platform
-
+ 
 Digi-Me is a digital profile system where users can create, manage, and share their virtual contact card using QR codes and profile links. Instead of physical business cards, users can simply share a QR or link to instantly show their profile.
 
 ---

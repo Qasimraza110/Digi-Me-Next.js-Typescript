@@ -7,6 +7,8 @@ import NavBar from "@/components/navbar/page";
 import Footer from "@/components/footer/page";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import NextImage from "next/image"; // rename next/image
+
 
 export default function ProfilePage() {
   const [user, setUser] = useState<any>(null);
@@ -94,31 +96,74 @@ useEffect(() => {
 
 
   // Upload Banner
-  const handleBannerChange = async (e: any) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
+  const handleBannerChange = async (e: React.ChangeEvent<HTMLInputElement>) => {
+  const file = e.target.files?.[0];
+  if (!file) return;
 
-    setBannerImage(URL.createObjectURL(file));
-    const token = localStorage.getItem("token");
-    const formData = new FormData();
-    formData.append("coverAvatar", file);
+  // Preview immediately
+  setBannerImage(URL.createObjectURL(file));
 
-    try {
-      const res = await fetch(`${API}/api/profile/me`, {
-        method: "PUT",
-        headers: { Authorization: `Bearer ${token}` },
-        body: formData,
-      });
+  // Check dimensions
+  const reader = new FileReader();
+  reader.onload = (event) => {
+    const img = new window.Image(); // use browser Image
+    img.src = event.target?.result as string;
 
-      if (!res.ok) throw new Error();
-      const updated = await res.json();
+    img.onload = async () => {
+      if (img.width !== 2480 || img.height !== 432) {
+        toast.error(
+          `Banner must be exactly 2480x432px. Your image is ${img.width}x${img.height}px.`,
+          {
+            style: {
+             background: "linear-gradient(to right, #B306A7, #4C0593)",
+    color: "#fff",
+    fontWeight: "bold",
+            },
+          }
+        );
+        setBannerImage("/bgpic.jpg"); // reset preview
+        return;
+      }
 
-      if (updated.coverAvatar) setBannerImage(`${API}${updated.coverAvatar}`);
-      toast.success("Banner updated");
-    } catch {
-      toast.error("Banner upload failed");
-    }
+      // Upload if dimensions are correct
+      const token = localStorage.getItem("token");
+      const formData = new FormData();
+      formData.append("coverAvatar", file);
+
+      try {
+        const res = await fetch(`${API}/api/profile/me`, {
+          method: "PUT",
+          headers: { Authorization: `Bearer ${token}` },
+          body: formData,
+        });
+
+        if (!res.ok) throw new Error("Upload failed");
+
+        const updated = await res.json();
+        if (updated.coverAvatar) setBannerImage(`${API}${updated.coverAvatar}`);
+
+        toast.success("Banner updated!", {
+          style: {
+           background: "linear-gradient(to right, #B306A7, #4C0593)",
+    color: "#fff",
+    fontWeight: "bold",
+          },
+        });
+      } catch (err) {
+        console.error(err);
+        toast.error("Banner upload failed", {
+          style: {
+           background: "linear-gradient(to right, #B306A7, #4C0593)",
+    color: "#fff",
+    fontWeight: "bold",
+          },
+        });
+      }
+    };
   };
+  reader.readAsDataURL(file);
+};
+
 
   // Upload Profile Image
   const handleProfileChange = async (e: any) => {
@@ -236,8 +281,10 @@ const handleUpdateProfile = async () => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-white relative">
-      <div className="flex justify-center items-start flex-1 relative">
+    <div className="min-h-screen bg-white flex flex-col">
+      <ToastContainer />
+          <NavBar />
+      <div className="relative flex-1 flex justify-center items-start overflow-auto px-4 ">
         {/* Floating graphics */}
         <div
           className="fixed top-0 right-0 w-[25%] h-[50vh] bg-[url('/accountpage.svg')] bg-no-repeat bg-contain bg-top pointer-events-none"
@@ -258,10 +305,9 @@ const handleUpdateProfile = async () => {
             transition: "transform 0.2s ease-out",
           }}
         >
-          <ToastContainer />
-          <NavBar />
+          
 
-          <div className="absolute w-[1240px] h-[216px] top-[118px] left-[100px] rounded-[28px] bg-[#D9D9D9] overflow-hidden">
+          <div className="absolute w-[1240px] h-[216px] top-[0px] left-[100px] rounded-[28px] bg-[#D9D9D9] overflow-hidden">
             <div
               className="absolute inset-0 bg-cover  bg-center transition-all duration-300  bg-[url('/profilebanner.png')]"
               // style={{ backgroundImage: `url(${bannerImage})` }}
@@ -303,7 +349,7 @@ const handleUpdateProfile = async () => {
           </div>
 
           {/* Profile Image */}
-          <div className="absolute top-[252px] left-[90px] w-[198px] h-[198px] rounded-full flex items-center justify-center">
+          <div className="absolute top-[110px] left-[90px] w-[198px] h-[198px] rounded-full flex items-center justify-center">
             <div className="absolute inset-0 rounded-full p-[5px] bg-gradient-to-r from-[#B008A6] via-[#8C099F] to-[#540A95]">
               <div className="h-full w-full bg-white  w-[91px] h-[91px] rounded-full overflow-hidden ">
                 <img
@@ -320,7 +366,7 @@ const handleUpdateProfile = async () => {
                   alt="Edit Profile"
                   width={24}
                   height={24}
-                  className="absolute bottom-8 right-0 z-50 cursor-pointer"
+                  className="absolute bottom-10 right-0 z-50 cursor-pointer"
                   onClick={handleProfileClick}
                 />
 
@@ -336,7 +382,7 @@ const handleUpdateProfile = async () => {
             </div>
           </div>
 
-          <div className="absolute top-[375px] left-[320px] flex items-center gap-8 ">
+          <div className="absolute top-[250px] left-[320px] flex items-center gap-8 ">
             {/* Profile Name */}
             <div className="relative w-[420px]">
               {/* Label */}
@@ -380,9 +426,9 @@ const handleUpdateProfile = async () => {
           </div>
 
           {/* Divider */}
-          <div className="absolute top-[448px] left-[305px] w-[1035px] h-[1px] bg-[#E2E2E2] rounded-[18px]"></div>
+          <div className="absolute top-[330px] left-[305px] w-[1035px] h-[1px] bg-[#E2E2E2] rounded-[18px]"></div>
 
-          <div className="absolute top-[486px] left-[110px] flex items-center gap-8 ">
+          <div className="absolute top-[360px] left-[110px] flex items-center gap-8 ">
             <div className="relative w-[1240px]">
               {/* Label */}
               <p className="absolute -top-6 left-0 w-[94px] h-[19px] text-[16px] font-medium font-['Roboto'] text-[#1E1E1E] opacity-100 capitalize leading-[19px]">
@@ -400,9 +446,9 @@ const handleUpdateProfile = async () => {
             </div>
           </div>
 
-          <div className="absolute top-[605px] left-[110px] w-[1240px] h-[1px] bg-[#E2E2E2] rounded-[18px]"></div>
+          <div className="absolute top-[480px] left-[110px] w-[1240px] h-[1px] bg-[#E2E2E2] rounded-[18px]"></div>
 
-          <div className="absolute top-[650px] left-[110px] flex items-center gap-8 ">
+          <div className="absolute top-[530px] left-[110px] flex items-center gap-8 ">
             <div className="relative w-[600px]">
               {/* Label */}
               <p className="absolute -top-6 left-0 text-[16px] font-medium text-[#1E1E1E] capitalize">
@@ -441,11 +487,11 @@ const handleUpdateProfile = async () => {
               />
             </div>
           </div>
-            <div className="absolute top-[730px] left-[110px] w-[1240px] h-[1px] bg-[#E2E2E2] rounded-[18px]"></div>
+            <div className="absolute top-[600px] left-[110px] w-[1240px] h-[1px] bg-[#E2E2E2] rounded-[18px]"></div>
              
 <div>
   {/* Row 1: Social link 1 & 2 */}
-  <div className="absolute top-[775px] left-[110px] flex items-center gap-8">
+  <div className="absolute top-[650px] left-[110px] flex items-center gap-8">
     {socialLinks.slice(0, 2).map((link, idx) => (
       <div key={idx} className="relative w-[600px]">
         <p className="absolute -top-6 left-0 text-[16px] font-medium text-[#1E1E1E] capitalize">
@@ -467,7 +513,7 @@ const handleUpdateProfile = async () => {
   </div>
 
   {/* Row 2: Social link 3 + optional Social link 4 + Plus button */}
-<div className="absolute top-[870px] left-[110px] flex items-center gap-8">
+<div className="absolute top-[750px] left-[110px] flex items-center gap-8">
   {/* Social link 3 */}
   <div className="relative w-[600px]">
     <p className="absolute -top-6 left-0 text-[16px] font-medium text-[#1E1E1E] capitalize">
@@ -527,9 +573,9 @@ const handleUpdateProfile = async () => {
 
 </div>
          
-          <div className="absolute top-[935px] left-[110px] w-[1240px] h-[1px] bg-[#E2E2E2] rounded-[18px]"></div>
+          <div className="absolute top-[820px] left-[110px] w-[1240px] h-[1px] bg-[#E2E2E2] rounded-[18px]"></div>
           {/* Bottom-right buttons container */}
-          <div className="fixed bottom-6 right-6 flex gap-4 z-50">
+          <div className="fixed bottom-8 right-6 flex gap-4 z-50">
             <button
               // or custom cancel logic
               className="flex items-center gap-3 text-[#232323] text-[16px] font-medium rounded-[16px] bg-[#0000000D] hover:bg-[#00000020] transition px-6 py-3"

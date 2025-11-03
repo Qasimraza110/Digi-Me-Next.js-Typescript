@@ -145,9 +145,11 @@ export default function SavedProfilePage() {
     );
 
   return (
-    <div className="flex flex-col min-h-screen bg-white relative">
+    <div className="min-h-screen bg-white flex flex-col">
+        <NavBar />
       {/* ✅ Page content wrapper */}
-      <div className="flex justify-center items-start flex-1 relative">\
+            <div className="relative flex-1 flex justify-center items-start overflow-auto px-4 ">
+
           <div
         className="fixed top-0 right-0 w-[25%] h-[50vh] bg-[url('/accountpage.svg')] bg-no-repeat bg-contain bg-top pointer-events-none"
         style={{ zIndex: 1 }}
@@ -169,10 +171,10 @@ export default function SavedProfilePage() {
           transition: "transform 0.2s ease-out",
         }}
       >
-        <NavBar />
+      
 
         {/* Header - Saved Profiles + Search */}
-        <div className="flex flex-col md:flex-row justify-between items-start md:items-center px-[100px] mt-[32px] gap-4">
+        <div className="flex flex-col md:flex-row justify-between items-start md:items-center px-[65px] mt-[25px] gap-4">
           <h1 className="text-[32px] font-medium text-[#1E1E1E] capitalize leading-[25px] font-['Roboto']">
             Saved Profiles
           </h1>
@@ -191,12 +193,12 @@ export default function SavedProfilePage() {
         </div>
 
         {/* Divider Line */}
-        <div className="mt-6 px-[100px]">
+        <div className="mt-6 px-[75px]">
           <div className="w-full h-[1px] bg-[#E2E2E2] rounded-[18px]"></div>
         </div>
 
         {/* Profiles Grid */}
-        <div className="grid grid-cols-3 items-center rounded-4xl w-[1240px] mx-auto pt-20 gap-x-24 space-y-5">
+        <div className="grid grid-cols-3 items-center rounded-4xl w-[1240px] mx-auto pt-15 gap-x-24 space-y-5">
           {isSearching && (
             <p className="text-gray-500 col-span-full text-center py-10">
               Searching...

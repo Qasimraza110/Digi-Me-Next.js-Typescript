@@ -21,16 +21,16 @@ export default function ProfilePage() {
   const API = "http://localhost:5000";
 
   // ✅ Scale page for responsive layout
-  useEffect(() => {
-    const handleResize = () => {
-      const baseWidth = 1440;
-      const scale = Math.min(window.innerWidth / baseWidth, 1);
-      document.documentElement.style.setProperty("--scale", scale.toString());
-    };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
+  // useEffect(() => {
+  //   const handleResize = () => {
+  //     const baseWidth = 1440;
+  //     const scale = Math.min(window.innerWidth / baseWidth, 1);
+  //     document.documentElement.style.setProperty("--scale", scale.toString());
+  //   };
+  //   handleResize();
+  //   window.addEventListener("resize", handleResize);
+  //   return () => window.removeEventListener("resize", handleResize);
+  // }, []);
 
   // ✅ Fetch profile + generate QR from backend
   useEffect(() => {
@@ -149,10 +149,10 @@ export default function ProfilePage() {
     }
   };
 
-const getAvatarUrl = (url: string | undefined) => {
-  if (!url) return "/userpic.jpg"; // fallback if no avatar
-  return url.startsWith("http") ? url : `${API}${url}`; // Google URLs stay, backend paths prefixed
-};
+  const getAvatarUrl = (url: string | undefined) => {
+    if (!url) return "/userpic.jpg"; // fallback if no avatar
+    return url.startsWith("http") ? url : `${API}${url}`; // Google URLs stay, backend paths prefixed
+  };
 
   // ✅ Loader with logo + pink rotating circle
   if (isLoading) {
@@ -174,10 +174,13 @@ const getAvatarUrl = (url: string | undefined) => {
   }
 
   return (
-    <div className="flex flex-col min-h-screen bg-white relative">
-      <div className="flex justify-center items-start flex-1 relative">
+    <div className="min-h-screen bg-white flex flex-col">
+      <ToastContainer />
+      <NavBar />
+
+      <div className="relative flex-1 flex justify-center items-start overflow-auto px-4 ">
         <div
-          className="fixed top-0 right-0 w-[25%] h-[50vh] bg-[url('/accountpage.svg')] bg-no-repeat bg-contain bg-top pointer-events-none"
+          className="fixed top-0 right-0 w-[20%] h-[50vh] bg-[url('/accountpage.svg')] bg-no-repeat bg-contain bg-top pointer-events-none"
           style={{ zIndex: 1 }}
         ></div>
 
@@ -197,11 +200,8 @@ const getAvatarUrl = (url: string | undefined) => {
             transition: "transform 0.2s ease-out",
           }}
         >
-          <ToastContainer />
-          <NavBar />
-
           {/* Gray Banner */}
-          <div className="absolute w-[1240px] h-[216px] top-[118px] left-[100px] rounded-[28px] bg-[#D9D9D9] overflow-hidden">
+          <div className="absolute w-[1240px] h-[216px] top-[0px] left-[100px] rounded-[28px] bg-[#D9D9D9] overflow-hidden">
             <div
               className="absolute inset-0 bg-cover bg-center transition-all duration-300"
               style={{
@@ -213,24 +213,22 @@ const getAvatarUrl = (url: string | undefined) => {
           </div>
 
           {/* Profile Image with Gradient Border */}
-          <div className="absolute top-[252px] left-[90px] w-[198px] h-[198px] rounded-full flex items-center justify-center">
+          <div className="absolute top-[110px] left-[90px] w-[198px] h-[198px] rounded-full flex items-center justify-center">
             <div className="absolute inset-0 rounded-full p-[5px] bg-gradient-to-r from-[#B008A6] via-[#8C099F] to-[#540A95]">
               <div className="h-full w-full bg-white  w-[91px] h-[91px] rounded-full overflow-hidden ">
                 <img
-  src={getAvatarUrl(user?.avatarUrl)}
-  alt="Profile"
-  width={188}
-  height={188}
-  className="rounded-full object-cover"
-/>
-
-
+                  src={getAvatarUrl(user?.avatarUrl)}
+                  alt="Profile"
+                  width={188}
+                  height={188}
+                  className="rounded-full object-cover"
+                />
               </div>
             </div>
           </div>
 
           {/* User info + buttons */}
-          <div className="absolute top-[358px] left-[305px] flex items-center gap-[24px]">
+          <div className="absolute top-[230px] left-[300px] flex items-center gap-[24px]">
             <div>
               <h1 className="font-['Roboto'] font-medium text-[32px] text-[#232323] capitalize">
                 {user?.username || "Alexa David"}
@@ -276,10 +274,10 @@ const getAvatarUrl = (url: string | undefined) => {
             </div>
           </div>
           {/* Divider Line */}
-          <div className="absolute top-[448px] left-[305px] w-[1035px] h-[1px] bg-[#E2E2E2] rounded-[18px]"></div>
+          <div className="absolute top-[330] left-[305px] w-[1035px] h-[1px] bg-[#E2E2E2] rounded-[18px]"></div>
 
           {/* Left Side Details */}
-          <div className="absolute top-[481px] left-[100px] w-[774px] h-[505px] opacity-100">
+          <div className="absolute top-[380] left-[100px] w-[774px] h-[505px] opacity-100">
             {/* 1️⃣ About Myself */}
             <div className="absolute top-0 left-0 w-[774px] h-[170px] rounded-[16px] bg-[#F8F8F8] border border-[#0707070A] p-4">
               <h2 className=" text-[#131313] font-['Roboto'] font-semibold text-[20px] leading-[25px] capitalize mb-3">
@@ -344,7 +342,7 @@ const getAvatarUrl = (url: string | undefined) => {
           </div>
 
           {/* QR Code Section */}
-          <div className="absolute top-[481px] left-[907px] flex flex-col items-center gap-6">
+          <div className="absolute top-[380] left-[907px] flex flex-col items-center gap-6">
             <div
               ref={qrRef}
               className="w-[433px] h-[433px] bg-[#F8F8F8] rounded-[16px] border border-[#0707070A] flex items-center justify-center"

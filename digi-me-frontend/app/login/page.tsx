@@ -6,6 +6,7 @@ import Image from "next/image";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { ToastContainer, toast } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
+import Footer from "@/components/footer/page";
 
 declare global {
   interface Window {
@@ -17,7 +18,6 @@ interface GoogleCredentialResponse {
   credential: string;
 }
 
-// 🔹 Set your backend URL here
 const BACKEND_URL = "http://localhost:5000";
 
 export default function LoginPage() {
@@ -30,11 +30,9 @@ export default function LoginPage() {
   const googleButtonRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
 
-  // 🔹 Load saved credentials if Remember Me was checked
   useEffect(() => {
     const savedEmail = localStorage.getItem("rememberEmail");
     const savedPassword = localStorage.getItem("rememberPassword");
-
     if (savedEmail && savedPassword) {
       setEmail(savedEmail);
       setPassword(savedPassword);
@@ -42,24 +40,18 @@ export default function LoginPage() {
     }
   }, []);
 
-  // 🔹 Normal Login
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-
     try {
       const response = await fetch(`${BACKEND_URL}/api/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email, password }),
       });
-
       const data = await response.json();
-
       if (response.ok) {
         localStorage.setItem("token", data.token);
-
-        // 🔹 Save or remove credentials based on Remember Me
         if (rememberMe) {
           localStorage.setItem("rememberEmail", email);
           localStorage.setItem("rememberPassword", password);
@@ -67,7 +59,6 @@ export default function LoginPage() {
           localStorage.removeItem("rememberEmail");
           localStorage.removeItem("rememberPassword");
         }
-
         toast.success("Login successful!", {
           position: "top-right",
           style: { background: "linear-gradient(to right, #9333EA, #EC4899)", color: "#fff" },
@@ -90,14 +81,8 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleCredentialResponse = async (
-    response: GoogleCredentialResponse
-  ) => {
-    if (!navigator.onLine) {
-      toast.error("You're offline. Please connect to the internet.");
-      return;
-    }
-
+  const handleGoogleCredentialResponse = async (response: GoogleCredentialResponse) => {
+    if (!navigator.onLine) return toast.error("You're offline. Please connect to the internet.");
     setIsLoading(true);
     try {
       const res = await fetch(`${BACKEND_URL}/api/auth/google`, {
@@ -105,114 +90,87 @@ export default function LoginPage() {
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ credential: response.credential }),
       });
-
       const data = await res.json();
-
       if (res.ok) {
         toast.success(data.msg || "Google Sign-in successful!");
-        // ✅ Store token (optional)
         if (data.token) localStorage.setItem("token", data.token);
         router.push("/profile");
-      } else {
-        toast.error(data.message || "Google Sign-in failed.");
-      }
+      } else toast.error(data.message || "Google Sign-in failed.");
     } catch (error) {
-      console.error("Google sign-in error:", error);
+      console.error(error);
       toast.error("Google Sign-in failed. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  // ✅ Load Google script safely
   useEffect(() => {
-    // Prevent duplicate script
     if (document.getElementById("google-client-script")) return;
-
     const script = document.createElement("script");
     script.src = "https://accounts.google.com/gsi/client";
     script.id = "google-client-script";
     script.async = true;
     script.defer = true;
-
     script.onload = () => {
       if (window.google) {
         try {
           window.google.accounts.id.initialize({
-            client_id:
-              "886314339765-4krud7b7jn2mg5ooahcjiha0nqkb6l3k.apps.googleusercontent.com",
+            client_id: "886314339765-4krud7b7jn2mg5ooahcjiha0nqkb6l3k.apps.googleusercontent.com",
             callback: handleGoogleCredentialResponse,
-            auto_select: false, // ✅ prevents unwanted auto-login popups
+            auto_select: false,
           });
-
-          // Render button
           if (googleButtonRef.current) {
             window.google.accounts.id.renderButton(googleButtonRef.current, {
               theme: "outline",
               size: "large",
               shape: "rectangular",
-              width: 472,
+              width: 400,
             });
           }
-
-          // Optionally prompt one-tap
           window.google.accounts.id.prompt();
-        } catch (err) {
-          console.error("Google init error:", err);
+        } catch {
           setIsValidClientId(false);
         }
-      } else {
-        console.error("Google SDK not found");
-        setIsValidClientId(false);
-      }
+      } else setIsValidClientId(false);
     };
-
     document.head.appendChild(script);
-
     return () => {
-      if (window.google?.accounts.id) {
-        window.google.accounts.id.cancel();
-      }
+      if (window.google?.accounts.id) window.google.accounts.id.cancel();
     };
   }, []);
 
   return (
-    <div className="h-screen w-full relative">
+    <div className="min-h-screen w-full relative flex flex-col justify-between">
       <ToastContainer position="top-right" autoClose={2000} />
 
       {/* Background */}
-    <div className="absolute inset-0 bg-[url('/merge.svg')] bg-top-center  bg-cover bg-no-repeat">
-      </div>
+      <div className="absolute inset-0 bg-[url('/merge.svg')] bg-cover bg-top bg-no-repeat -z-10" />
 
-      {/* Overlay */}
-      <div
-        className="absolute bg-[url('/loginlogo.svg')] bg-no-repeat bg-contain w-[25%] h-full top-0 right-0"
-       
-      ></div>
+      {/* Overlay for desktop */}
+      <div className="absolute hidden lg:block bg-[url('/loginlogo.svg')] bg-contain bg-no-repeat w-[25%] h-full top-0 right-0 -z-10" />
 
-      {/* Layout */}
-      <div className="relative flex justify-center items-center h-full">
-        <div className="grid grid-cols-1 lg:grid-cols-2 w-full lg:w-[1280px] px-4 mx-auto">
+      {/* Main content */}
+      <div className="relative flex-1 flex flex-col lg:flex-row justify-center items-center px-4 py-8 lg:py-0 z-10">
+        <div className="flex flex-col lg:flex-row w-full lg:w-[1280px] mx-auto gap-8 items-center">
+
           {/* LEFT SECTION */}
-          <div className="hidden lg:block col-span-1 relative">
-            <div className="absolute" style={{ top: "100px", left: "60px" }}>
-              <div className="flex items-center space-x-4">
-                <Image src="/group.svg" alt="Logo" width={83} height={74} className="object-contain" />
-                <h1 className="font-bold text-black text-[48px] leading-[58px]">
-                  DigiMe<span className="inline-block w-3 h-3 bg-black rounded-full ml-1"></span>
-                </h1>
-              </div>
-              <div className="mt-12 max-w-[580px]">
-                <p className="text-black font-roboto font-bold text-[48px] leading-[64px] capitalize">
-                  Log in to access your <span className="text-[#AD06A6]">Personalized</span> profile, connect with others.{" "}
-                  <span className="text-[#AD06A6]">Your Network, Your Way!</span>
-                </p>
-              </div>
+          <div className="flex-1 flex flex-col justify-center items-start text-left mb-6 lg:mb-0">
+            <div className="flex items-center space-x-4 mb-4 lg:mb-12">
+              <Image src="/group.svg" alt="Logo" width={83} height={74} className="object-contain" />
+              <h1 className="font-bold text-black text-[48px] leading-[58px]">
+                DigiMe<span className="inline-block w-3 h-3 bg-black rounded-full ml-1"></span>
+              </h1>
+            </div>
+            <div className="max-w-[580px]">
+              <p className="text-black font-roboto font-bold text-[28px] lg:text-[48px] leading-[36px] lg:leading-[64px] capitalize">
+                Log in to access your <span className="text-[#AD06A6]">Personalized</span> profile, connect with others.{" "}
+                <span className="text-[#AD06A6]">Your Network, Your Way!</span>
+              </p>
             </div>
           </div>
 
           {/* RIGHT SECTION */}
-          <div className="col-span-1 flex justify-center items-center pt-8 lg:pt-0">
+          <div className="flex-1 flex justify-center items-center w-full">
             <FormUI
               email={email}
               setEmail={setEmail}
@@ -229,6 +187,11 @@ export default function LoginPage() {
             />
           </div>
         </div>
+      </div>
+
+      {/* Footer only for mobile */}
+      <div className="lg:hidden relative z-10">
+        <Footer />
       </div>
     </div>
   );
@@ -251,9 +214,9 @@ function FormUI({
   return (
     <form
       onSubmit={handleLogin}
-      className="relative flex flex-col justify-start space-y-5 p-8 rounded-[20px] shadow-xl mt-[-40px] custom-bg"
+      className="relative flex flex-col justify-start space-y-5 p-6 sm:p-8 rounded-[20px] shadow-xl custom-bg w-full max-w-[550px] sm:max-w-[500px] mx-auto"
     >
-      <h1 className="font-bold text-gray-800 text-[30px] text-left mb-[10px]">Welcome Back!</h1>
+      <h1 className="font-bold text-gray-800 text-[30px] text-left mb-2">Welcome Back!</h1>
 
       {/* Email */}
       <div>
@@ -262,26 +225,26 @@ function FormUI({
           type="email"
           required
           value={email}
-          onChange={(e: any) => setEmail(e.target.value)}
+          onChange={(e) => setEmail(e.target.value)}
           placeholder="Enter your email address"
           className="w-full px-4 py-3 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 border border-[#D9D9D9]/50 bg-white/10 text-[#1E1E1E] placeholder:text-gray-400 backdrop-blur-md"
         />
       </div>
 
       {/* Password */}
-      <div className="relative">
+      <div className="relative w-full">
         <label className="block text-sm font-medium text-gray-700 mb-1">Password*</label>
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
             required
             value={password}
-            onChange={(e: any) => setPassword(e.target.value)}
+            onChange={(e) => setPassword(e.target.value)}
             placeholder="Enter your password"
-            className="w-full px-4 py-[14px] rounded-lg outline-none focus:ring-2 focus:ring-purple-500 pr-12 border border-[#D9D9D9]/50 bg-white/10 text-[#1E1E1E] placeholder:text-gray-400 backdrop-blur-md"
+            className="w-full px-4 pr-12 h-12 rounded-lg outline-none focus:ring-2 focus:ring-purple-500 border border-[#D9D9D9]/50 bg-white/10 text-[#1E1E1E] placeholder:text-gray-400 backdrop-blur-md"
           />
           <div
-            className="absolute right-4 top-1/2 -translate-y-[52%] cursor-pointer text-gray-500 hover:text-purple-600 transition"
+            className="absolute inset-y-0 right-3 flex items-center cursor-pointer text-gray-500 hover:text-purple-600"
             onClick={() => setShowPassword(!showPassword)}
           >
             {showPassword ? <AiOutlineEyeInvisible size={22} /> : <AiOutlineEye size={22} />}
@@ -295,12 +258,11 @@ function FormUI({
           <input
             type="checkbox"
             checked={rememberMe}
-            onChange={(e: any) => setRememberMe(e.target.checked)}
+            onChange={(e) => setRememberMe(e.target.checked)}
             className="accent-purple-600"
           />
           <span className="text-sm text-gray-600">Remember Me</span>
         </label>
-
         <a href="/forgot" className="text-sm text-gray-600 hover:text-purple-600">
           Forgot Password?
         </a>
@@ -316,27 +278,20 @@ function FormUI({
       </button>
 
       {/* Divider */}
-      <p className="text-center text-[#1E1E1E] font-roboto font-medium text-[16px]">Or Login With</p>
+      <p className="text-center text-[#1E1E1E] font-roboto font-medium text-[16px] mt-2">Or Login With</p>
 
-      {/* Google Login */}
+      {/* Google Button */}
       <div
         ref={googleButtonRef}
-        className={`flex items-center justify-center rounded-[12px] mx-auto transition backdrop-blur-sm ${
+        className={`flex items-center justify-center rounded-[12px] transition backdrop-blur-sm w-full sm:w-[90%] h-[65px] mx-auto ${
           isValidClientId ? "hover:bg-gray-50/10 cursor-pointer" : "opacity-50 cursor-not-allowed"
         }`}
-        style={{
-          width: "472px",
-          height: "65px",
-          gap: "10px",
-          background: "transparent",
-        }}
       >
-        {/* <Image src="/google.svg" alt="Google" width={42} height={42} /> */}
         {!isValidClientId && <span className="ml-2 text-sm text-gray-500">(Not configured)</span>}
       </div>
 
       {/* Signup Link */}
-      <div className="flex justify-center mt-[-4px]">
+      <div className="flex justify-center mt-2">
         <p className="font-medium text-[16px] text-[#1E1E1E]">
           Don’t have an account?
           <a href="/register" className="text-[#AD06A6] ml-1 font-medium no-underline">

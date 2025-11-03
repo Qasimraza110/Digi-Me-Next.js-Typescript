@@ -21,106 +21,62 @@ export default function AccountSettingPage() {
   });
   const router = useRouter();
 
-  // ✅ Scale layout like profile page
-  useEffect(() => {
-    const handleResize = () => {
-      const baseWidth = 1440;
-      const scale = Math.min(window.innerWidth / baseWidth, 1);
-      document.documentElement.style.setProperty("--scale", scale.toString());
-    };
-    handleResize();
-    window.addEventListener("resize", handleResize);
-    return () => window.removeEventListener("resize", handleResize);
-  }, []);
-
   // ✅ Fetch user
   useEffect(() => {
     const token = localStorage.getItem("token");
-    if (!token) {
-      router.push("/login");
-      return;
-    }
+    if (!token) return router.push("/login");
 
     const fetchProfile = async () => {
       try {
-        const response = await fetch("http://localhost:5000/api/profile/account/me", {
-          headers: { Authorization: `Bearer ${token}` },
+        const res = await fetch(
+          "http://localhost:5000/api/profile/account/me",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
+        if (!res.ok) throw new Error();
+        const data = await res.json();
+        setUser(data);
+        setFormData({
+          username: data.username || "",
+          email: data.email || "",
+          password: "",
         });
-
-        if (response.ok) {
-          const userData = await response.json();
-          setUser(userData);
-          setFormData({
-            username: userData.username || "",
-            email: userData.email || "",
-            password: "",
-          });
-        } else {
-          localStorage.removeItem("token");
-          router.push("/login");
-        }
-      } catch (error) {
-        console.error("Profile fetch error:", error);
+      } catch {
         localStorage.removeItem("token");
         router.push("/login");
       } finally {
         setIsLoading(false);
       }
     };
-
     fetchProfile();
   }, [router]);
 
-  // ✅ Handle input change
   const handleInputChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const { name, value } = e.target;
-    setFormData((prev) => ({
-      ...prev,
-      [name]: value,
-    }));
+    setFormData({ ...formData, [e.target.name]: e.target.value });
   };
 
-  // ✅ Save updated data
   const handleSave = async () => {
+    const token = localStorage.getItem("token");
     try {
-      const token = localStorage.getItem("token");
-      const response = await fetch("http://localhost:5000/api/profile/account/update", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(formData),
-      });
-
-      if (response.ok) {
-        const updatedUser = await response.json();
-        setUser(updatedUser);
-        toast.success("Profile updated successfully!", {
-          position: "top-right",
-          autoClose: 1000,
-          style: {
-            background: "linear-gradient(to right, #B306A7, #4C0593)",
-            color: "#fff",
-            fontWeight: 500,
-            borderRadius: "12px",
+      const res = await fetch(
+        "http://localhost:5000/api/profile/account/update",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
           },
-          onClose: () => router.push("/profile"),
-        });
-      } else {
-        toast.error("Failed to update profile", {
-          position: "top-right",
-          autoClose: 2000,
-          style: { background: "#1E1E1E", color: "#fff", borderRadius: "12px" },
-        });
-      }
-    } catch (error) {
-      console.error("Update error:", error);
-      toast.error("Error updating profile", {
-        position: "top-right",
-        autoClose: 2000,
-        style: { background: "#1E1E1E", color: "#fff", borderRadius: "12px" },
+          body: JSON.stringify(formData),
+        }
+      );
+      if (!res.ok) return toast.error("Failed to update profile");
+      toast.success("Profile updated!", {
+        autoClose: 1000,
+        onClose: () => router.push("/profile"),
       });
+    } catch {
+      toast.error("Error updating profile");
     }
   };
 
@@ -132,130 +88,113 @@ export default function AccountSettingPage() {
     });
   };
 
-  // ✅ Loader screen
-  if (isLoading) {
+  if (isLoading)
     return (
-      <div className="flex flex-col items-center justify-center h-screen bg-white relative">
-        <div className="relative">
-          {/* Center logo */}
-          <Image src="/group.svg" alt="Logo" width={100} height={100} className="z-10" />
-          {/* Rotating pink loader ring */}
-          <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120px] h-[120px] border-4 border-t-pink-500 border-gray-300 rounded-full animate-spin"></div>
-        </div>
-        <p className="mt-6 text-gray-800 text-lg font-medium">Loading profile...</p>
-      </div>
+     <div className="flex flex-col items-center justify-center h-screen bg-white relative">
+             <div className="relative">
+               <Image
+                 src="/group.svg"
+                 alt="Logo"
+                 width={100}
+                 height={100}
+                 className="z-10"
+               />
+               <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120px] h-[120px] border-4 border-t-pink-500 border-gray-300 rounded-full animate-spin"></div>
+             </div>
+             <p className="mt-6 text-white text-lg">Loading profile...</p>
+           </div>
     );
-  }
 
   return (
-    <div className="flex flex-col min-h-screen bg-white relative" >
-       <div className="flex justify-center items-start flex-1 relative">
-             <div
-        className="fixed top-0 right-0 w-[25%] h-[50vh] bg-[url('/accountpage.svg')] bg-no-repeat bg-contain bg-top pointer-events-none"
-        style={{ zIndex: 1 }}
-      ></div>
+    <div className="min-h-screen bg-white flex flex-col">
+      <NavBar />
+      <ToastContainer />
 
-      {/* Left floating image */}
-      <div
-        className="fixed bottom-0 left-0 w-[25%] h-[50vh] bg-[url('/accountpage2.svg')] bg-no-repeat bg-contain bg-bottom pointer-events-none"
-        style={{ zIndex: 1 }}
-      ></div>
+      <div className="relative flex-1 flex justify-center items-start overflow-auto px-4 py-10">
+        {/* floating shapes hidden on mobile */}
+        <div className="hidden lg:block fixed top-0 right-0 w-[20%] h-[50vh] bg-[url('/accountpage.svg')] bg-contain bg-no-repeat" />
+        <div className="hidden lg:block fixed bottom-0 left-0 w-[25%] h-[50vh] bg-[url('/accountpage2.svg')] bg-contain bg-no-repeat" />
 
-      {/* Main content */}
-      <div
-        className="relative"
-        style={{
-          width: "1440px",
-          height: "1024px",
-          transformOrigin: "top center",
-          transform: "scale(var(--scale, 1))",
-          transition: "transform 0.2s ease-out",
-        }}
-      >
-        <NavBar />
-        <ToastContainer />
+    
+        <div className="w-full max-w-[1440px] relative">
+          <h1 className="mt-1 ml-5 text-[32px] font-medium text-[#1E1E1E]">
+            Account Settings
+          </h1>
+          <div className="border-b my-4 ml-6 max-w-[90%]" />
 
-        <h1 className="absolute top-[139px] left-[100px] font-roboto font-medium text-[32px] capitalize text-[#1E1E1E]">
-          Account Settings
-        </h1>
+          <div className="mt-7 ml-5 flex flex-col space-y-10 max-w-[90%]">
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+              <div className="flex flex-col">
+                <label className="mb-2 text-black text-[16px] font-medium">
+                  User Name
+                </label>
+                <input
+                  name="username"
+                  value={formData.username}
+                  onChange={handleInputChange}
+                  className="h-12 rounded-[16px] bg-[#F8F8F8] text-black border border-gray-300 px-4 placeholder:text-gray-400"
+                  placeholder="Enter name"
+                />
+              </div>
 
-        {/* Divider lines */}
-        <div className="absolute top-[196px] left-[100px] w-[1240px] h-[1px] bg-[#E2E2E2] rounded-[18px]"></div>
-        <div className="absolute top-[320px] left-[100px] w-[1240px] h-[1px] bg-[#E2E2E2] rounded-[18px]"></div>
-        <div className="absolute top-[444px] left-[100px] w-[1240px] h-[1px] bg-[#E2E2E2] rounded-[18px]"></div>
-
-        {/* Inputs section */}
-        <div className="absolute top-[221px] left-[100px] space-y-[40px]">
-          <div className="flex flex-wrap gap-[40px]">
-            {/* Username */}
-            <div className="flex flex-col">
-              <label className="text-[16px] font-roboto font-medium text-[#1E1E1E] mb-[8px]">User Name</label>
-              <input
-                type="text"
-                name="username"
-                value={formData.username}
-                onChange={handleInputChange}
-                placeholder="Alexa David"
-                className="w-[608px] h-[48px] rounded-[16px] bg-[#F8F8F8] border border-[#EEEEEE] px-[16px] text-[16px] text-[#1E1E1E] placeholder:text-[#AEAEAE] focus:outline-none focus:ring-2 focus:ring-[#B007A7]"
-              />
+              <div className="flex flex-col">
+                <label className="mb-2 text-black text-[16px] font-medium">
+                  Email
+                </label>
+                <input
+                  name="email"
+                  type="email"
+                  value={formData.email}
+                  onChange={handleInputChange}
+                  className="h-12 rounded-[16px] bg-[#F8F8F8] text-black border border-gray-300 px-4 placeholder:text-gray-400"
+                  placeholder="Enter email"
+                />
+              </div>
             </div>
 
-            {/* Email */}
-            <div className="flex flex-col">
-              <label className="text-[16px] font-roboto font-medium text-[#1E1E1E] mb-[8px]">Email Address</label>
-              <input
-                type="email"
-                name="email"
-                value={formData.email}
-                onChange={handleInputChange}
-                placeholder="alexadavid@Email.Com"
-                className="w-[608px] h-[48px] rounded-[16px] bg-[#F8F8F8] border border-[#EEEEEE] px-[16px] text-[16px] text-[#1E1E1E] placeholder:text-[#AEAEAE] focus:outline-none focus:ring-2 focus:ring-[#B007A7]"
-              />
+            <div className="flex flex-col max-w-[608px]">
+              <label className="mb-2 text-black text-[16px] font-medium">
+                Password
+              </label>
+              <div className="relative">
+                <input
+                  name="password"
+                  type={showPassword ? "text" : "password"}
+                  value={formData.password}
+                  onChange={handleInputChange}
+                  className="w-full h-12 rounded-[16px] bg-[#F8F8F8]  text-black border border-gray-300 px-4 placeholder:text-gray-400 pr-10"
+                  placeholder="••••••••"
+                  text-color="gray-400"
+                />
+                <button
+                  type="button"
+                  onClick={() => setShowPassword(!showPassword)}
+                  className="absolute right-4 top-1/2 -translate-y-1/2"
+                >
+                  {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                </button>
+              </div>
             </div>
-          </div>
 
-          {/* Password */}
-          <div className="flex flex-col">
-            <label className="text-[16px] font-roboto font-medium text-[#1E1E1E] mb-[8px]">Password</label>
-            <div className="relative w-[608px]">
-              <input
-                type={showPassword ? "text" : "password"}
-                name="password"
-                value={formData.password}
-                onChange={handleInputChange}
-                placeholder="••••••••••••"
-                className="w-[608px] h-[48px] rounded-[16px] bg-[#F8F8F8] border border-[#EEEEEE] px-[16px] text-[16px] text-[#1E1E1E] placeholder:text-[#AEAEAE] focus:outline-none focus:ring-2 focus:ring-[#B007A7] pr-10"
-              />
+            <div className="flex gap-4 justify-end pr-6">
               <button
-                type="button"
-                onClick={() => setShowPassword(!showPassword)}
-                className="absolute right-[16px] top-1/2 -translate-y-1/2 text-[#AEAEAE] hover:text-[#4C0593]"
+                onClick={handleCancel}
+                className="h-12 w-[162px] text-gray-400 rounded-[16px] bg-[#F8F8F8]"
               >
-                {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
+                Cancel
+              </button>
+              <button
+                onClick={handleSave}
+                className="h-12 w-[162px] rounded-[16px] bg-gradient-to-r from-[#B306A7] to-[#4C0593] text-white"
+              >
+                Update Profile
               </button>
             </div>
           </div>
         </div>
-
-        {/* Action buttons */}
-        <div className="absolute top-[478px] left-[1000px] flex gap-[16px]">
-          <button
-            onClick={handleCancel}
-            className="w-[162px] h-[48px] rounded-[16px] bg-[#F8F8F8] text-[#1E1E1E] font-roboto font-medium hover:bg-[#EDEDED] transition-all"
-          >
-            Cancel
-          </button>
-          <button
-            onClick={handleSave}
-            className="w-[162px] h-[48px] rounded-[16px] bg-gradient-to-r from-[#B306A7] to-[#4C0593] text-white font-roboto font-medium hover:opacity-90 transition-all shadow-md"
-          >
-            Update Profile
-          </button>
-        </div>
       </div>
-       </div>
-      {/* Right floating image */}
- <Footer />
+
+      <Footer />
     </div>
   );
 }

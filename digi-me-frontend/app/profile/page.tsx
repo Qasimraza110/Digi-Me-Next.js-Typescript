@@ -60,6 +60,7 @@ export default function ProfilePage() {
         });
         const qrData = await qrRes.json();
         setQrCode(qrData.qrCode);
+        console.log("User Avatar URL →", data?.avatarUrl); 
       } catch (err) {
         console.error(err);
         localStorage.removeItem("token");
@@ -149,10 +150,18 @@ export default function ProfilePage() {
     }
   };
 
-  const getAvatarUrl = (url: string | undefined) => {
-    if (!url) return "/userpic.jpg"; // fallback if no avatar
-    return url.startsWith("http") ? url : `${API}${url}`; // Google URLs stay, backend paths prefixed
-  };
+ const getAvatarUrl = (url?: string): string => {
+  if (!url) return "/userpic.jpg"; // fallback if no avatar
+
+  // Absolute URLs (Google, GitHub, Cloudinary, etc.)
+  if (url.startsWith("http")) return url;
+
+  // Local backend paths like "/uploads/avatar.png"
+  if (url.startsWith("/")) return `${API}${url}`;
+
+  // Any other unexpected cases → fallback
+  return "/userpic.jpg";
+};
 
   // ✅ Loader with logo + pink rotating circle
   if (isLoading) {
@@ -216,12 +225,13 @@ export default function ProfilePage() {
           <div className="absolute top-[110px] left-[90px] w-[198px] h-[198px] rounded-full flex items-center justify-center">
             <div className="absolute inset-0 rounded-full p-[5px] bg-gradient-to-r from-[#B008A6] via-[#8C099F] to-[#540A95]">
               <div className="h-full w-full bg-white  w-[91px] h-[91px] rounded-full overflow-hidden ">
-                <img
-                  src={getAvatarUrl(user?.avatarUrl)}
+                <Image
+                  src={getAvatarUrl(user?.avatarUrl)|| "/user.png"}
                   alt="Profile"
                   width={188}
                   height={188}
                   className="rounded-full object-cover"
+                    unoptimized
                 />
               </div>
             </div>

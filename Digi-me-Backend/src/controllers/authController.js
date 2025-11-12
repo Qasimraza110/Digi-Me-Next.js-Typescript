@@ -131,8 +131,7 @@ async function requestPasswordReset (req, res) {
   }
 };
 
-// ✅ 2️⃣ RESET PASSWORD
-async function resetPassword (req, res) {
+async function resetPassword(req, res) {
   const { token, newPassword, confirmPassword } = req.body;
 
   if (!token || !newPassword || !confirmPassword)
@@ -142,6 +141,11 @@ async function resetPassword (req, res) {
 
   if (newPassword !== confirmPassword)
     return res.status(400).json({ message: "Passwords do not match." });
+
+  // ✅ Validate new password strength
+  const passwordValidation = validatePassword(newPassword);
+  if (!passwordValidation.isValid)
+    return res.status(400).json({ message: passwordValidation.message });
 
   try {
     // Find user with valid token
@@ -159,12 +163,15 @@ async function resetPassword (req, res) {
     user.resetPasswordExpires = undefined;
     await user.save();
 
-    res.json({ message: "Password updated successfully!" });
+    res.json({ 
+      message: "Password updated successfully!", 
+    });
   } catch (err) {
     console.error("Password reset error:", err);
     res.status(500).json({ message: "Failed to reset password. Try again later." });
   }
 };
+
 
 
 const client = new OAuth2Client(process.env.GOOGLE_CLIENT_ID);

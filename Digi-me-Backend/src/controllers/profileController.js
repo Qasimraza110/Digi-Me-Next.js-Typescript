@@ -2,7 +2,8 @@ const path = require('path');
 const fs = require('fs');
 // const Fuse = require('fuse.js');
 const User = require('../models/User');
-const { validateUsername, validatePhone, validateBio } = require('../utils/validation');
+const { validateUsername, validatePhone, validateBio ,validateEmail} = require('../utils/validation');
+const { sendEmailNotification , sendpasswordNotification} = require('../config/mailer');
 
 // async function getMyProfile(req, res) {
 //   const user = await User.findById(req.user.id);
@@ -168,40 +169,21 @@ async function getMyProfile(req, res) {
 }
 
 async function updateMyProfile(req, res) {
-  let updates = filterProfileFields(req.body);
+  let updates = {};
 
-  // ✅ Allow direct fields
-  if (req.body.website !== undefined) updates.website = req.body.website;
-  if (req.body.bio !== undefined) updates.bio = req.body.bio;
-
-  // ✅ If socialLinks sent as string, parse it
- if (req.body.socialLinks) {
+  // ✅ Parse JSON payload from FormData
+  if (req.body.json) {
     try {
-      let links = req.body.socialLinks;
-
-      // If it's a string (from FormData), parse it
-      if (typeof links === "string") links = JSON.parse(links);
-
-      // Convert array or object to proper format
-      if (Array.isArray(links)) {
-        updates.socialLinks = {
-          facebook: links[0]?.url || "",
-          instagram: links[1]?.url || "",
-          linkedin: links[2]?.url || "",
-          whatsapp: links[3]?.url || "",
-        };
-      } else {
-        updates.socialLinks = {
-          facebook: links.facebook || "",
-          instagram: links.instagram || "",
-          linkedin: links.linkedin || "",
-          whatsapp: links.whatsapp || "",
-        };
-      }
+      updates = JSON.parse(req.body.json);
     } catch (err) {
-      console.error("Failed to parse socialLinks:", err);
+      console.error("Failed to parse JSON payload:", err);
+      return res.status(400).json({ message: "Invalid JSON" });
     }
   }
+
+  // ✅ File uploads
+  if (req.files?.avatar) updates.avatarUrl = `/uploads/${req.files.avatar[0].filename}`;
+  if (req.files?.coverAvatar) updates.coverAvatar = `/uploads/${req.files.coverAvatar[0].filename}`;
 
   // ✅ Validations
   if (updates.username) {
@@ -210,6 +192,11 @@ async function updateMyProfile(req, res) {
 
     const existingUser = await User.findOne({ username: updates.username, _id: { $ne: req.user.id } });
     if (existingUser) return res.status(409).json({ message: "Username already in use" });
+  }
+
+  if (updates.email) {
+    const emailValidation = validateEmail(updates.email);
+    if (!emailValidation.isValid) return res.status(400).json({ message: emailValidation.message });
   }
 
   if (updates.phone) {
@@ -222,20 +209,39 @@ async function updateMyProfile(req, res) {
     if (!bioValidation.isValid) return res.status(400).json({ message: bioValidation.message });
   }
 
-  // ✅ Avatar
-  if (req.files?.avatar) updates.avatarUrl = `/uploads/${req.files.avatar[0].filename}`;
+  // ✅ Social links normalization
+  if (updates.socialLinks) {
+    const links = updates.socialLinks;
+    updates.socialLinks = {
+      facebook: links[0]?.url || links.facebook || "" ,
+      instagram: links[1]?.url || links.instagram || "" ,
+      linkedin: links[2]?.url || links.linkedin || "" ,
+      whatsapp: links[3]?.url || links.whatsapp || "" ,
+    };
+  }
 
-  // ✅ Cover
-  if (req.files?.coverAvatar) updates.coverAvatar = `/uploads/${req.files.coverAvatar[0].filename}`;
+   try {
+    const user = await User.findById(req.user.id);
+    if (!user) return res.status(404).json({ message: "User not found" });
 
-  try {
-    const user = await User.findByIdAndUpdate(req.user.id, updates, { new: true });
-    return res.json(sanitiseUser(user));
+    const oldEmail = user.email;
+    const newEmail = updates.email;
+
+    // ✅ Update user
+    const updatedUser = await User.findByIdAndUpdate(req.user.id, updates, { new: true });
+
+    // ✅ If email changed, send notifications
+    if (newEmail && oldEmail !== newEmail) {
+      await sendEmailNotification(oldEmail, newEmail);
+    }
+
+    return res.json(sanitiseUser(updatedUser));
   } catch (err) {
     console.error("Profile update error:", err);
     return res.status(500).json({ message: "Profile update failed" });
   }
 }
+
 
 // ✅ Delete account
 async function deleteMyProfile(req, res) {
@@ -297,6 +303,7 @@ function publicUser(user) {
   };
 }
 
+
 //account seeting controller functions
 
 async function getAccountSettings(req, res) {
@@ -328,6 +335,10 @@ async function updateAccountSettings(req, res) {
       return res.status(404).json({ message: "User not found" });
     }
 
+    const oldEmail = user.email;
+    let emailChanged = false;
+    let passwordChanged = false;
+
     // ✅ Username update
     if (username && username !== user.username) {
       const existingUser = await User.findOne({
@@ -349,19 +360,32 @@ async function updateAccountSettings(req, res) {
       if (existingEmail) {
         return res.status(400).json({ message: "Email already in use" });
       }
+      emailChanged = true;
       user.email = email;
+      // emailChanged = true;
     }
 
-    // ✅ Password update (only if user entered one)
+    // ✅ Password update
     if (password && password.trim() !== "") {
-      const hashedPassword = await bcrypt.hash(password, 10);
+      const hashedPassword = await User.hashPassword(password);
       user.passwordHash = hashedPassword;
+      passwordChanged = true;
     }
 
     await user.save();
 
+    // ✅ Send notifications
+    if (emailChanged) {
+      await sendEmailNotification(oldEmail, user.email);
+    }
+
+    if (passwordChanged) {
+      await sendpasswordNotification(user.email);
+    }
+
     res.json({
       message: "Account updated successfully",
+        emailChanged,
       user: {
         id: user._id,
         username: user.username,
@@ -373,6 +397,7 @@ async function updateAccountSettings(req, res) {
     res.status(500).json({ message: "Failed to update account" });
   }
 }
+
 
 module.exports = {
   getMyProfile,

@@ -25,6 +25,7 @@ export default function RegisterPage() {
   const [showPassword, setShowPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [isValidClientId, setIsValidClientId] = useState(true);
+  const [redirectTo, setRedirectTo] = useState("/login"); // <-- safe initial value
 
   const router = useRouter();
   const googleButtonRef = useRef<HTMLDivElement>(null);
@@ -32,43 +33,56 @@ export default function RegisterPage() {
   const BACKEND_URL =
     process.env.NEXT_PUBLIC_BACKEND_URL || "http://localhost:5000";
 
+  // 🔹 Get redirect query param safely in useEffect
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    const redirect = params.get("redirect") || "/login";
+    setRedirectTo(redirect);
+  }, []);
+
   const handleRegister = async (e: React.FormEvent) => {
-    e.preventDefault();
-    setIsLoading(true);
-    try {
-      const response = await fetch(`${BACKEND_URL}/api/auth/register`, {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ username: fullName, email, password }),
-      });
-      const data = await response.json();
-      if (response.ok) {
-        toast.success("Registration successful!", {
-          style: {
-            background: "linear-gradient(to right, #9333EA, #EC4899)",
-            color: "#fff",
-          },
-        });
-        setTimeout(() => router.push("/login"), 2000);
-      } else {
-        toast.error(data.message || "Registration failed!", {
-          style: {
-            background: "linear-gradient(to right, #9333EA, #EC4899)",
-            color: "#fff",
-          },
-        });
-      }
-    } catch {
-      toast.error("Registration failed. Please try again.", {
+  e.preventDefault();
+  setIsLoading(true);
+  try {
+    const response = await fetch(`${BACKEND_URL}/api/auth/register`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify({ username: fullName, email, password }),
+    });
+    const data = await response.json();
+
+    if (response.ok) {
+      // ✅ Save token to localStorage if backend returns it
+      if (data.token) localStorage.setItem("token", data.token);
+
+      toast.success("Registration successful!", {
         style: {
           background: "linear-gradient(to right, #9333EA, #EC4899)",
           color: "#fff",
         },
       });
-    } finally {
-      setIsLoading(false);
+
+      // ✅ Redirect directly after signup
+      setTimeout(() => router.push(redirectTo), 2000);
+    } else {
+      toast.error(data.message || "Registration failed!", {
+        style: {
+          background: "linear-gradient(to right, #9333EA, #EC4899)",
+          color: "#fff",
+        },
+      });
     }
-  };
+  } catch (err) {
+    toast.error("Registration failed. Please try again.", {
+      style: {
+        background: "linear-gradient(to right, #9333EA, #EC4899)",
+        color: "#fff",
+      },
+    });
+  } finally {
+    setIsLoading(false);
+  }
+};
 
   const handleGoogleCredentialResponse = async (
     response: GoogleCredentialResponse
@@ -97,6 +111,7 @@ export default function RegisterPage() {
     }
   };
 
+  // 🔹 Google script initialization
   useEffect(() => {
     if (document.getElementById("google-client-script")) return;
 

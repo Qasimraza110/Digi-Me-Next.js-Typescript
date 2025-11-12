@@ -25,27 +25,33 @@ const UserSchema = new mongoose.Schema(
     },
     passwordHash: { type: String, required: true },
     
-    username: { 
-      type: String, 
-      unique: true, 
-      sparse: true,
-      minlength: [3, 'Username must be at least 3 characters long'],
-      maxlength: [20, 'Username must be no more than 20 characters long'],
-      match: [/^[a-zA-Z0-9_]+$/, 'Username can only contain letters, numbers, and underscores'],
-      validate: {
-        validator: function(v) {
-          if (!v) return true;
-          return !v.startsWith('_') && !v.endsWith('_') && !v.includes('__');
-        },
-        message: 'Username cannot start/end with underscore or contain consecutive underscores',
-      },
+   username: { 
+  type: String, 
+  unique: true, 
+  sparse: true,
+  minlength: [3, 'Username must be at least 3 characters long'],
+  maxlength: [20, 'Username must be no more than 20 characters long'],
+  match: [/^[a-zA-Z0-9_ ]+$/, 'Username can only contain letters, numbers, spaces, and underscores'],
+  validate: {
+    validator: function(v) {
+      if (!v) return true; // optional
+      // Cannot start or end with underscore or space
+      if (/^[_ ]/.test(v) || /[_ ]$/.test(v)) return false;
+      // Cannot contain consecutive underscores or spaces
+      if (/__/.test(v) || /  /.test(v)) return false;
+      return true;
     },
+    message: 'Username cannot start/end with underscore or space, or contain consecutive underscores/spaces',
+  },
+},
+
 
     bio: { type: String, default: '' },
     phone: { type: String, default: '' },
     website: { type: String, default: '' },
 
     // ✅ Profile Picture
+    avatarUrl: { type: String, default: '' },
     avatarUrl: { type: String, default: '' },
 
     // ✅ New Cover Photo Field

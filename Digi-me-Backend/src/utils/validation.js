@@ -22,29 +22,28 @@ function validateUsername(username) {
     return { isValid: false, message: 'Username must be no more than 20 characters long' };
   }
 
-  // Format validation (alphanumeric and underscores only)
-  const usernameRegex = /^[a-zA-Z0-9_]+$/;
+  // Format validation: letters, numbers, spaces, underscores
+  const usernameRegex = /^[a-zA-Z0-9_ ]+$/;
   if (!usernameRegex.test(usernameStr)) {
-    return { isValid: false, message: 'Username can only contain letters, numbers, and underscores' };
+    return { isValid: false, message: 'Username can only contain letters, numbers, spaces, and underscores' };
   }
 
-  // Cannot start with underscore
-  if (usernameStr.startsWith('_')) {
-    return { isValid: false, message: 'Username cannot start with an underscore' };
+  // Cannot start or end with space or underscore
+  if (usernameStr.startsWith('_') || usernameStr.startsWith(' ')) {
+    return { isValid: false, message: 'Username cannot start with a space or underscore' };
+  }
+  if (usernameStr.endsWith('_') || usernameStr.endsWith(' ')) {
+    return { isValid: false, message: 'Username cannot end with a space or underscore' };
   }
 
-  // Cannot end with underscore
-  if (usernameStr.endsWith('_')) {
-    return { isValid: false, message: 'Username cannot end with an underscore' };
-  }
-
-  // Cannot contain consecutive underscores
-  if (usernameStr.includes('__')) {
-    return { isValid: false, message: 'Username cannot contain consecutive underscores' };
+  // Cannot have consecutive spaces or underscores
+  if (usernameStr.includes('__') || usernameStr.includes('  ')) {
+    return { isValid: false, message: 'Username cannot contain consecutive underscores or spaces' };
   }
 
   return { isValid: true, message: '' };
 }
+
 
 /**
  * Validates password strength and requirements

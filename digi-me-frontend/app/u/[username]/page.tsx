@@ -1,45 +1,91 @@
 "use client";
 
-import { useParams } from "next/navigation";
+import { useParams, useSearchParams } from "next/navigation";
 import { useEffect, useState, useRef } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { Globe, Bookmark, Share2 } from "lucide-react";
+import { Bookmark, Share2 } from "lucide-react";
 import { QRCodeSVG } from "qrcode.react";
 import NavBar from "@/components/navbar/page";
+import Footer from "@/components/footer/page";
 import { toast, ToastContainer } from "react-toastify";
 import "react-toastify/dist/ReactToastify.css";
 import { FaPhoneAlt, FaEnvelope } from "react-icons/fa";
-import Footer from "@/components/footer/page";
 
 export default function PublicProfile() {
-  const { username } = useParams();
-  const router = useRouter();
+  const params = useParams();
+  const usernameParam = params?.username as string | undefined;
+  const decodedUsername = usernameParam ? decodeURIComponent(usernameParam) : null;
 
-  const [profile, setProfile] = useState<any>(null); // public profile
-  const [user, setUser] = useState<any>(null); // logged-in user
-  const [isLoading, setIsLoading] = useState(true);
-  const [qrCode, setQrCode] = useState<string | null>(null);
-  const [profileUrl, setProfileUrl] = useState("");
-  const qrRef = useRef<HTMLDivElement>(null);
+  const searchParams = useSearchParams();
+  const router = useRouter();
   const API = "http://localhost:5000";
 
-  // Fetch public profile by username
+  const [profile, setProfile] = useState<any>(null);
+  const [user, setUser] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [showLoginPopup, setShowLoginPopup] = useState(false);
+  const [profileUrl, setProfileUrl] = useState("");
+  const qrRef = useRef<HTMLDivElement>(null);
+
+  const cameFromQR = searchParams.get("qr") === "1";
+
+  // -------------------------------
+  // Fetch public profile
+  // -------------------------------
   useEffect(() => {
+    if (!decodedUsername) return;
+
     const fetchProfile = async () => {
       try {
-        const res = await fetch(`http://localhost:5000/api/users/${username}`);
-        if (!res.ok) throw new Error("Failed to fetch profile");
+        const res = await fetch(`${API}/api/users/${decodedUsername}`);
+        if (!res.ok) throw new Error("Profile not found");
         const data = await res.json();
         setProfile(data.user || data);
-      } catch (error) {
-        console.error("Error fetching profile:", error);
+        setProfileUrl(`${window.location.origin}/u/${decodedUsername}`);
+      } catch (err) {
+        console.error(err);
+        setProfile(null);
+      } finally {
+        setIsLoading(false);
       }
     };
     fetchProfile();
-  }, [username]);
+  }, [decodedUsername]);
 
+  // -------------------------------
+  // Fetch logged-in user
+  // -------------------------------
+  useEffect(() => {
+    const token = localStorage.getItem("token");
+    if (!token) {
+      if (!cameFromQR) setShowLoginPopup(true);
+      setIsLoading(false);
+      return;
+    }
+
+    const fetchUser = async () => {
+      try {
+        const res = await fetch(`${API}/api/profile/me`, {
+          headers: { Authorization: `Bearer ${token}` },
+        });
+        if (!res.ok) throw new Error("Unauthorized");
+        const data = await res.json();
+        setUser(data);
+      } catch (err) {
+        console.error(err);
+        localStorage.removeItem("token");
+        if (!cameFromQR) setShowLoginPopup(true);
+      } finally {
+        setIsLoading(false);
+      }
+    };
+    fetchUser();
+  }, [cameFromQR]);
+
+  // -------------------------------
   // Handle scaling for desktop
+  // -------------------------------
   useEffect(() => {
     const handleResize = () => {
       const baseWidth = 1440;
@@ -51,39 +97,62 @@ export default function PublicProfile() {
     return () => window.removeEventListener("resize", handleResize);
   }, []);
 
-  // Fetch logged-in user
-  useEffect(() => {
-    const token = localStorage.getItem("token");
-    if (!token) return; // no token, public view only
+  const handleLogin = () =>
+    router.push(`/login?redirect=/u/${encodeURIComponent(decodedUsername || "")}`);
+  const handleSignup = () =>
+    router.push(`/register?redirect=/u/${encodeURIComponent(decodedUsername || "")}`);
 
-    const fetchUser = async () => {
-      try {
-        const res = await fetch("http://localhost:5000/api/profile/me", {
-          headers: { Authorization: `Bearer ${token}` },
+  const getAvatarUrl = (url?: string): string => {
+    if (!url) return "/userpic.jpg";
+    if (url.startsWith("http")) return url;
+    if (url.startsWith("/")) return `${API}${url}`;
+    return "/userpic.jpg";
+  };
+
+  const handleSaveProfile = async (targetUserId: string) => {
+    if (!user) {
+      toast.error("Please log in to save profiles!");
+      return;
+    }
+    try {
+      const res = await fetch(`${API}/api/saved`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${localStorage.getItem("token")}`,
+        },
+        body: JSON.stringify({ targetUserId }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        if (data.message?.includes("already saved")) {
+          toast.info("⚡ Profile already saved!", {
+          position: "top-right",
+          style: {
+            background: "linear-gradient(to right, #9333EA, #EC4899)",
+            color: "#fff",
+          },
         });
-        if (!res.ok) throw new Error("Unauthorized");
-        const data = await res.json();
-        setUser(data);
-      } catch (err) {
-        console.error(err);
-        localStorage.removeItem("token");
-        router.push("/login");
-      } finally {
-        setIsLoading(false);
+        } else {
+          throw new Error(data.message || "Failed to save profile");
+        }
+        return;
       }
-    };
-    fetchUser();
-  }, [router]);
 
-  // Set profile URL and generate QR code
-  useEffect(() => {
-    if (!profile) return;
-    const url = `${window.location.origin}/u/${profile.username}`;
-    setProfileUrl(url);
-    setQrCode(null); // we will generate locally
-  }, [profile]);
+      toast.success("Profile saved successfully!", {
+          position: "top-right",
+          style: {
+            background: "linear-gradient(to right, #9333EA, #EC4899)",
+            color: "#fff",
+          },
+        });
+    } catch (err: any) {
+      toast.error(err.message || "Something went wrong!");
+    }
+  };
 
-  // Download QR Code
   const handleDownloadQr = () => {
     try {
       if (qrRef.current) {
@@ -92,9 +161,7 @@ export default function PublicProfile() {
         const svgData = new XMLSerializer().serializeToString(svg);
         const canvas = document.createElement("canvas");
         const img = document.createElement("img");
-        const svgBlob = new Blob([svgData], {
-          type: "image/svg+xml;charset=utf-8",
-        });
+        const svgBlob = new Blob([svgData], { type: "image/svg+xml;charset=utf-8" });
         const url = URL.createObjectURL(svgBlob);
 
         img.onload = () => {
@@ -109,112 +176,57 @@ export default function PublicProfile() {
           link.href = pngUrl;
           link.download = `${profile?.username || "profile"}-qr.png`;
           link.click();
-
           toast.success("QR Code downloaded!", {
-            position: "top-right",
-            style: {
-              background: "linear-gradient(to right, #B007A7, #4F0594)",
-              color: "#fff",
-              borderRadius: "10px",
-            },
-          });
+          position: "top-right",
+          style: {
+            background: "linear-gradient(to right, #9333EA, #EC4899)",
+            color: "#fff",
+          },
+        });
         };
         img.src = url;
       }
     } catch (err) {
       console.error(err);
-      toast.error("❌ Failed to download QR Code", { position: "top-right" });
+      toast.error("Failed to download QR Code", {
+          position: "top-right",
+          style: {
+            background: "linear-gradient(to right, #9333EA, #EC4899)",
+            color: "#fff",
+          },
+        });
     }
   };
 
-  // Copy profile URL
   const handleCopyUrl = async () => {
     try {
       await navigator.clipboard.writeText(profileUrl);
       toast.success("Profile URL copied!", {
-        position: "top-right",
-        style: {
-          background: "linear-gradient(to right, #B007A7, #4F0594)",
-          color: "#fff",
-          borderRadius: "10px",
-        },
-      });
+          position: "top-right",
+          style: {
+            background: "linear-gradient(to right, #9333EA, #EC4899)",
+            color: "#fff",
+          },
+        });
     } catch {
-      toast.error("❌ Failed to copy URL.", { position: "top-right" });
+      toast.error("Failed to copy URL.", {
+          position: "top-right",
+          style: {
+            background: "linear-gradient(to right, #9333EA, #EC4899)",
+            color: "#fff",
+          },
+        });
     }
   };
 
-  const getAvatarUrl = (url: string | undefined) => {
-    if (!url) return "/userpic.jpg"; // fallback if no avatar
-    return url.startsWith("http") ? url : `${API}${url}`; // Google URLs stay, backend paths prefixed
-  };
-
-  // Save profile once
-  const handleSaveProfile = async (targetUserId: string) => {
-    if (!user) {
-      toast.error("Please log in to save profiles!");
-      return;
-    }
-
-    try {
-      const res = await fetch("http://localhost:5000/api/saved", {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${localStorage.getItem("token")}`,
-        },
-        body: JSON.stringify({ targetUserId }),
-      });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        if (data.message?.includes("already saved")) {
-          toast.info("⚡ Profile already saved!", {
-            position: "top-right",
-            style: {
-              background: "linear-gradient(to right, #B007A7, #4F0594)",
-              color: "#fff",
-              borderRadius: "10px",
-            },
-          });
-        } else {
-          throw new Error(data.message || "Failed to save profile");
-        }
-        return;
-      }
-
-      toast.success("Profile saved successfully!", {
-        position: "top-right",
-        style: {
-          background: "linear-gradient(to right, #B007A7, #4F0594)",
-          color: "#fff",
-          borderRadius: "10px",
-        },
-      });
-    } catch (err: any) {
-      toast.error(err.message || "Something went wrong!", {
-        position: "top-right",
-        style: {
-          background: "linear-gradient(to right, #B007A7, #4F0594)",
-          color: "#fff",
-          borderRadius: "10px",
-        },
-      });
-    }
-  };
-
-  if (isLoading || !profile) {
+  // -------------------------------
+  // Loading & error states
+  // -------------------------------
+  if (isLoading) {
     return (
       <div className="flex flex-col items-center justify-center h-screen bg-white relative">
         <div className="relative">
-          <Image
-            src="/group.svg"
-            alt="Logo"
-            width={100}
-            height={100}
-            className="z-10"
-          />
+          <Image src="/group.svg" alt="Logo" width={100} height={100} loading="eager" />
           <div className="absolute top-1/2 left-1/2 -translate-x-1/2 -translate-y-1/2 w-[120px] h-[120px] border-4 border-t-pink-500 border-gray-300 rounded-full animate-spin"></div>
         </div>
         <p className="mt-6 text-black text-lg">Loading profile...</p>
@@ -222,12 +234,44 @@ export default function PublicProfile() {
     );
   }
 
+  // if (!profile) {
+  //   return (
+  //     <div className="flex items-center justify-center h-screen">
+  //       <h1 className="text-2xl font-bold">Profile not found</h1>
+  //     </div>
+  //   );
+  // }
   return (
     <div className="min-h-screen bg-white flex flex-col">
       <ToastContainer />
       <NavBar />
+        {showLoginPopup && (
+        <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50">
+          <div className="bg-white p-8 rounded-lg flex flex-col items-center gap-4 w-[400px] max-w-[90%]">
+            <h2 className="text-xl text-black font-semibold">Login Required</h2>
+            <p className="text-gray-600 text-center">
+              To access full features, please login first.
+            </p>
+            <button
+              onClick={handleLogin}
+              className="w-full bg-gradient-to-r from-purple-600 to-pink-600 text-white py-2 px-6 rounded-md hover:opacity-90 transition"
+            >
+              Login Now
+            </button>
+            <button
+              onClick={handleSignup}
+              className="w-full mt-2 underline text-gray-600"
+            >
+              Signup
+            </button>
+          </div>
+        </div>
+      )}
+
+      {/* Right floating image   `relative flex-1 flex justify-center items-start overflow-auto px-4 `*/}
+      <div className={`${showLoginPopup ? "filter blur-sm pointer-events-none" : ""} relative flex-1 flex justify-center items-start overflow-auto px-4 `}>  
       {/* Right floating image */}
-      <div className="relative flex-1 flex justify-center items-start overflow-auto px-4 ">
+      {/* <div className="relative flex-1 flex justify-center items-start overflow-auto px-4 "> */}
         <div
           className="fixed top-0 right-0 w-[25%] h-[50vh] bg-[url('/accountpage.svg')] bg-no-repeat bg-contain bg-top pointer-events-none"
           style={{ zIndex: 1 }}
@@ -266,12 +310,14 @@ export default function PublicProfile() {
           <div className="absolute top-[110px] left-[90px] w-[198px] h-[198px] rounded-full flex items-center justify-center">
             <div className="absolute inset-0 rounded-full p-[5px] bg-gradient-to-r from-[#B008A6] via-[#8C099F] to-[#540A95]">
               <div className="h-full w-full bg-white w-[91px] h-[91px] rounded-full overflow-hidden ">
-                <img
+                <Image
                   src={getAvatarUrl(profile?.avatarUrl)}
                   alt={profile?.username || "Profile"}
                   width={188}
                   height={188}
                   className="rounded-full object-cover"
+                    unoptimized
+
                 />
               </div>
             </div>

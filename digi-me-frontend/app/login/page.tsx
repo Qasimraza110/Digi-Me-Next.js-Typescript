@@ -27,9 +27,17 @@ export default function LoginPage() {
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [isValidClientId, setIsValidClientId] = useState(true);
+  const [redirectTo, setRedirectTo] = useState("/profile"); // <-- default safe value
   const googleButtonRef = useRef<HTMLDivElement | null>(null);
   const router = useRouter();
 
+  // 🔹 Get redirect query param safely in useEffect
+  useEffect(() => {
+    const params = new URLSearchParams(window.location.search);
+    setRedirectTo(params.get("redirect") || "/profile");
+  }, []);
+
+  // 🔹 Load remembered credentials
   useEffect(() => {
     const savedEmail = localStorage.getItem("rememberEmail");
     const savedPassword = localStorage.getItem("rememberPassword");
@@ -61,28 +69,42 @@ export default function LoginPage() {
         }
         toast.success("Login successful!", {
           position: "top-right",
-          style: { background: "linear-gradient(to right, #9333EA, #EC4899)", color: "#fff" },
+          style: {
+            background: "linear-gradient(to right, #9333EA, #EC4899)",
+            color: "#fff",
+          },
         });
-        setTimeout(() => router.push("/profile"), 1500);
+        setTimeout(() => router.push(redirectTo), 1500); // safe redirect
       } else {
         toast.error(data.message || "Invalid credentials", {
           position: "top-right",
-          style: { background: "linear-gradient(to right, #9333EA, #EC4899)", color: "#fff" },
+          style: {
+            background: "linear-gradient(to right, #9333EA, #EC4899)",
+            color: "#fff",
+          },
         });
       }
     } catch (error) {
       console.error(error);
       toast.error("Login failed. Please try again.", {
         position: "top-right",
-        style: { background: "linear-gradient(to right, #9333EA, #EC4899)", color: "#fff" },
+        style: {
+          background: "linear-gradient(to right, #9333EA, #EC4899)",
+          color: "#fff",
+        },
       });
     } finally {
       setIsLoading(false);
     }
   };
 
-  const handleGoogleCredentialResponse = async (response: GoogleCredentialResponse) => {
-    if (!navigator.onLine) return toast.error("You're offline. Please connect to the internet.");
+  const handleGoogleCredentialResponse = async (
+    response: GoogleCredentialResponse
+  ) => {
+    if (!navigator.onLine) {
+      toast.error("You're offline. Please connect to the internet.");
+      return;
+    }
     setIsLoading(true);
     try {
       const res = await fetch(`${BACKEND_URL}/api/auth/google`, {
@@ -92,18 +114,42 @@ export default function LoginPage() {
       });
       const data = await res.json();
       if (res.ok) {
-        toast.success(data.msg || "Google Sign-in successful!");
+        toast.success(data.msg || "Google Sign-in successful!", {
+          position: "top-right",
+          style: {
+            background: "linear-gradient(to right, #B007A7, #4F0594)",
+            color: "#fff",
+            borderRadius: "10px",
+          },
+        });
         if (data.token) localStorage.setItem("token", data.token);
         router.push("/profile");
-      } else toast.error(data.message || "Google Sign-in failed.");
+      } else {
+        toast.error(data.message || "Google Sign-in failed.", {
+          position: "top-right",
+          style: {
+            background: "linear-gradient(to right, #B007A7, #4F0594)",
+            color: "#fff",
+            borderRadius: "10px",
+          },
+        });
+      }
     } catch (error) {
       console.error(error);
-      toast.error("Google Sign-in failed. Please try again.");
+      toast.error("Google Sign-in failed. Please try again.", {
+        position: "top-right",
+        style: {
+          background: "linear-gradient(to right, #B007A7, #4F0594)",
+          color: "#fff",
+          borderRadius: "10px",
+        },
+      });
     } finally {
       setIsLoading(false);
     }
   };
 
+  // 🔹 Google Sign-In initialization
   useEffect(() => {
     if (document.getElementById("google-client-script")) return;
     const script = document.createElement("script");
@@ -115,7 +161,8 @@ export default function LoginPage() {
       if (window.google) {
         try {
           window.google.accounts.id.initialize({
-            client_id: "886314339765-4krud7b7jn2mg5ooahcjiha0nqkb6l3k.apps.googleusercontent.com",
+            client_id:
+              "886314339765-4krud7b7jn2mg5ooahcjiha0nqkb6l3k.apps.googleusercontent.com",
             callback: handleGoogleCredentialResponse,
             auto_select: false,
           });
@@ -138,7 +185,7 @@ export default function LoginPage() {
       if (window.google?.accounts.id) window.google.accounts.id.cancel();
     };
   }, []);
-
+  
   return (
     <div className="min-h-screen w-full relative flex flex-col justify-between">
       <ToastContainer position="top-right" autoClose={2000} />

@@ -224,21 +224,23 @@ export default function AccountSettingPage() {
                 <label className="mb-2 text-black text-[16px] font-medium">
                   User Name
                 </label>
-                <input
-                  name="username"
-                  type="text"
-                  value={formData.username}
-                  onChange={handleInputChange}
-                  className={`h-12 rounded-[16px] bg-[#F8F8F8] text-black border px-4 placeholder:text-gray-400 ${
-                    errors.username ? "border-red-500" : "border-gray-300"
-                  }`}
-                  placeholder="Enter username"
-                />
-                {errors.username && (
-                  <p className="text-red-500 text-sm font-medium ml-2">
-                    Username can only contain letters, numbers, and underscores
-                  </p>
-                )}
+                <div className="flex flex-col">
+  <input
+    name="username"
+    type="text"
+    value={formData.username}
+    onChange={handleInputChange}
+    className={`h-12 rounded-[16px] bg-[#F8F8F8] text-black border px-4 placeholder:text-gray-400 ${
+      errors.username ? "border-red-500" : "border-gray-300"
+    }`}
+    placeholder="Enter username"
+  />
+  {/* Always render the <p>, use empty string if no error */}
+  <p className="text-red-500 text-sm font-medium ml-2 min-h-[1.25rem]">
+    {errors.username ? "Username can only contain letters, numbers, and underscores" : ""}
+  </p>
+</div>
+
               </div>
 
               {/* Email */}
@@ -246,21 +248,23 @@ export default function AccountSettingPage() {
                 <label className="mb-2 text-black text-[16px] font-medium">
                   Email
                 </label>
-                <input
-                  name="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={handleInputChange}
-                  className={`h-12 rounded-[16px] bg-[#F8F8F8] text-black border px-4 placeholder:text-gray-400 ${
-                    errors.email ? "border-red-500" : "border-gray-300"
-                  }`}
-                  placeholder="Enter email"
-                />
-                {errors.email && (
-                  <p className="text-red-500 text-sm font-medium ml-2">
-                    Please enter a valid email
-                  </p>
-                )}
+              <div className="flex flex-col">
+  <input
+    name="email"
+    type="email"
+    value={formData.email}
+    onChange={handleInputChange}
+    className={`h-12 rounded-[16px] bg-[#F8F8F8] text-black border px-4 placeholder:text-gray-400 ${
+      errors.email ? "border-red-500" : "border-gray-300"
+    }`}
+    placeholder="Enter email"
+  />
+  {/* Reserve fixed height for error message to prevent layout shift */}
+  <p className="text-red-500 text-sm font-medium ml-2 min-h-[1.25rem]">
+    {errors.email ? "Please enter a valid email" : ""}
+  </p>
+</div>
+
               </div>
             </div>
 
@@ -289,7 +293,7 @@ export default function AccountSettingPage() {
                 </button>
               </div>
               {errors.password && (
-                <p className="text-red-500 text-xs font-medium ml-2">
+                <p className="text-red-500 text-sm font-medium ml-2 min-h-[1.25rem]">
                   Password must contain upper, lower, number & special character
                 </p>
               )}

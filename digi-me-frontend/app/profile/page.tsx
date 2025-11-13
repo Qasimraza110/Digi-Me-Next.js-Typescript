@@ -87,23 +87,47 @@ export default function ProfilePage() {
             link.href = pngUrl;
             link.download = `${user?.username || "profile"}-qr.png`;
             link.click();
-            toast.success("QR Code downloaded!", { position: "top-right" });
+            toast.success("QR Code downloaded!", {
+              position: "top-right",
+              style: {
+                background: "linear-gradient(to right, #9333EA, #EC4899)",
+                color: "#fff",
+              },
+            });
           };
           img.src = url;
         }
       }
     } catch (err) {
       console.error(err);
-      toast.error("❌ Failed to download QR Code", { position: "top-right" });
+      toast.error("❌ Failed to download QR Code", {
+        position: "top-right",
+        style: {
+          background: "linear-gradient(to right, #9333EA, #EC4899)",
+          color: "#fff",
+        },
+      });
     }
   };
 
   const handleCopyUrl = async () => {
     try {
       await navigator.clipboard.writeText(profileUrl);
-      toast.success("Profile URL copied!", { position: "top-right" });
+      toast.success("Profile URL copied!", {
+        position: "top-right",
+        style: {
+          background: "linear-gradient(to right, #9333EA, #EC4899)",
+          color: "#fff",
+        },
+      });
     } catch {
-      toast.error("❌ Failed to copy URL.", { position: "top-right" });
+      toast.error("❌ Failed to copy URL.", {
+        position: "top-right",
+        style: {
+          background: "linear-gradient(to right, #9333EA, #EC4899)",
+          color: "#fff",
+        },
+      });
     }
   };
 
@@ -114,50 +138,47 @@ export default function ProfilePage() {
   //   return "/userpic.jpg";
   // };
   // Inside your component
-const renderAvatar = () => {
-  const url = user?.avatarUrl;
+  const renderAvatar = () => {
+    const url = user?.avatarUrl;
 
-  if (!url) {
-    // Fallback local image
+    if (!url) {
+      // Fallback local image
+      return (
+        <img
+          src="/userpic.jpg"
+          alt="Profile"
+          width={188}
+          height={188}
+          className="rounded-full object-cover"
+        />
+      );
+    }
+
+    if (url.startsWith("http")) {
+      // External URL
+      return (
+        <img
+          src={url}
+          alt="Profile"
+          width={188}
+          height={188}
+          className="rounded-full object-cover"
+        />
+      );
+    }
+
+    // Backend image (local server)
     return (
-      <img
-        src="/userpic.jpg"
+      <Image
+        src={API + url}
         alt="Profile"
-      width={188}
-      height={188}
-      className="rounded-full object-cover"
-      
+        width={188}
+        height={188}
+        className="rounded-full object-cover"
+        unoptimized
       />
     );
-  }
-
-  if (url.startsWith("http")) {
-    // External URL
-    return (
-      <img
-        src={url}
-       alt="Profile"
-      width={188}
-      height={188}
-      className="rounded-full object-cover"
-    
-      />
-    );
-  }
-
-  // Backend image (local server)
-  return (
-    <Image
-      src={API + url}
-      alt="Profile"
-      width={188}
-      height={188}
-      className="rounded-full object-cover"
-      unoptimized
-    />
-  );
-};
-
+  };
 
   if (isLoading)
     return (
@@ -171,14 +192,20 @@ const renderAvatar = () => {
     );
 
   return (
-    <div className="min-h-screen bg-white flex flex-col">
+    <div className="min-h-screen flex flex-col bg-white">
       <ToastContainer />
-      
-      <div className="relative flex-1 overflow-auto px-4 sm:px-6 md:px-16 lg:px-[75px]">
+
+
+      <div className="flex-1 relative overflow-auto px-4 sm:px-6 md:px-16 lg:px-[75px]">
         <NavBar />
-        {/* Desktop floating images */}
-        <div className="hidden lg:block fixed top-0 right-0 w-[20%] h-[50vh] bg-[url('/accountpage.svg')] bg-no-repeat bg-contain bg-top pointer-events-none z-10"></div>
-        <div className="hidden lg:block fixed bottom-0 left-0 w-[25%] h-[50vh] bg-[url('/accountpage2.svg')] bg-no-repeat bg-contain bg-bottom pointer-events-none z-10"></div>
+        <div
+          className="fixed top-0 right-0 w-[25%] h-[50vh] bg-[url('/accountpage.svg')] bg-no-repeat bg-contain bg-top pointer-events-none"
+          style={{ zIndex: 1 }}
+        />
+        <div
+          className="fixed bottom-0 left-0 w-[25%] h-[50vh] bg-[url('/accountpage2.svg')] bg-no-repeat bg-contain bg-bottom pointer-events-none"
+          style={{ zIndex: 1 }}
+        />
 
         <div className="relative max-w-[1440px] mx-auto">
           {/* Cover Banner */}
@@ -226,15 +253,11 @@ const renderAvatar = () => {
                 </div>
 
                 <div
-                  className="
-      flex flex-wrap items-center justify-center lg:justify-start 
-      gap-2 lg:gap-4 mt-3 lg:mt-0
-    "
-                >
+                  className="flex flex-wrap items-center justify-center lg:justify-start gap-2 lg:gap-4 mt-3 lg:mt-0">
                   {/* Scan Button */}
                   <button
                     onClick={() => router.push("/scan")}
-                    className="w-16 h-16 bg-[#F3F3F3] rounded-[16px] flex items-center justify-center hover:bg-gray-200 transition"
+                    className="w-16 h-16 bg-[#F3F3F3] rounded-[16px] flex cursor-pointer items-center justify-center hover:bg-gray-200 transition"
                   >
                     <Image src="/scan.svg" alt="Scan" width={32} height={32} />
                   </button>
@@ -242,7 +265,7 @@ const renderAvatar = () => {
                   {/* Edit Button */}
                   <button
                     onClick={() => router.push("/editpage")}
-                    className="flex items-center gap-3 bg-gradient-to-r from-[#B007A7] to-[#4F0594] text-white text-[16px] font-medium rounded-[16px] px-[24px] py-[12px] hover:opacity-90 transition"
+                    className="flex cursor-pointer items-center gap-3 bg-gradient-to-r from-[#B007A7] to-[#4F0594] text-white text-[16px] font-medium rounded-[16px] px-[24px] py-[12px] hover:opacity-90 transition"
                   >
                     <Edit3 size={20} />
                     Edit Profile
@@ -251,7 +274,7 @@ const renderAvatar = () => {
                   {/* Account Settings Button */}
                   <button
                     onClick={() => router.push("/accountsetting")}
-                    className="flex items-center gap-3 bg-[#0000000D] text-[#232323] text-[16px] font-medium rounded-[16px] px-[24px] py-[12px] hover:bg-[#00000020] transition"
+                    className="flex cursor-pointer items-center gap-3 bg-[#0000000D] text-[#232323] text-[16px] font-medium rounded-[16px] px-[24px] py-[12px] hover:bg-[#00000020] transition"
                   >
                     <Settings size={20} />
                     Account Settings
@@ -417,7 +440,7 @@ const renderAvatar = () => {
               <h2 className="text-lg font-semibold text-[#131313] mb-2">
                 About Myself
               </h2>
-              <p className="text-[#555] text-sm">
+              <p className="text-[#555] text-sm break-words whitespace-pre-wrap">
                 {user?.bio || "Lorem ipsum..."}
               </p>
             </div>
@@ -499,13 +522,13 @@ const renderAvatar = () => {
               <div className="flex flex-col sm:flex-row justify-center gap-3 w-full">
                 <button
                   onClick={handleCopyUrl}
-                  className="flex items-center text-gray-400 justify-center gap-2 px-4 py-2 bg-[#0000000D] rounded-lg text-sm sm:text-base hover:bg-[#00000020] transition"
+                  className="flex items-center text-gray-400 justify-center gap-2 px-4 py-2 bg-[#0000000D] rounded-lg text-sm sm:text-base hover:bg-[#00000020] transition cursor-pointer"
                 >
                   <Share2 size={15} /> Share Profile URL
                 </button>
                 <button
                   onClick={handleDownloadQr}
-                  className="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-[#B007A7] to-[#4F0594] rounded-lg text-white text-sm sm:text-base hover:opacity-90 transition"
+                  className="flex items-center  justify-center gap-2 px-4 py-2 bg-gradient-to-r from-[#B007A7] to-[#4F0594] rounded-lg text-white text-sm sm:text-base hover:opacity-90 transition cursor-pointer"
                 >
                   <Image src="/scan.svg" alt="QR Icon" width={20} height={20} />{" "}
                   Share QR Code
@@ -514,7 +537,6 @@ const renderAvatar = () => {
             </div>
           </div>
         </div>
-        
       </div>
       <Footer />
     </div>

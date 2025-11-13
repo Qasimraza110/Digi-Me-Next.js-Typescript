@@ -413,191 +413,187 @@ export default function PublicProfile() {
           </div>
 
           {/* Left Details */}
-                 <div className="hidden lg:block">
-                   {/* About / Phone / Email / Social */}
-                   <div className="absolute top-[350px] left-[100px] w-[774px] h-[505px] space-y-4">
-                     <div className="bg-[#F8F8F8] p-4 rounded-[16px] border border-[#0707070A]">
-                       <h2 className="text-[20px] font-semibold text-[#131313] mb-2">
-                         About Myself
-                       </h2>
-                       <p className="text-[16px] text-[#555]">
-                         {profile?.bio || "Lorem ipsum..."}
-                       </p>
-                     </div>
-                     <div className="flex gap-4">
-                       <div className="flex-1 bg-[#F8F8F8] p-4 rounded-[16px] border flex items-center gap-4">
-                         <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-[#B007A7] via-[#4F0594] to-[#8C099F] text-white">
-                           <FaPhoneAlt size={20} />
-                         </div>
-                         <p className="text-[#131313] font-medium">
-                           {profile?.phone || "+92 300 0000000"}
-                         </p>
-                       </div>
-                       <div className="flex-1 bg-[#F8F8F8] p-4 rounded-[16px] border flex items-center gap-4">
-                         <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-[#B007A7] via-[#4F0594] to-[#8C099F] text-white">
-                           <FaEnvelope size={20} />
-                         </div>
-                         <p className="text-[#131313] font-medium">
-                           {profile?.email || "example@email.com"}
-                         </p>
-                       </div>
-                     </div>
-                     <div className="bg-[#F8F8F8] p-4 rounded-[16px] border">
-                       <h2 className="text-[20px] font-semibold text-[#131313] mb-2">
-                         Social Links
-                       </h2>
-                       <div className="flex gap-4">
-                         {["whatsapp", "facebook", "linkedin", "instagram"].map(
-                           (key, i) => (
-                             <a
-                               key={i}
-                               href={profile?.socialLinks?.[key] || "#"}
-                               target="_blank"
-                               rel="noopener noreferrer"
-                               className="flex items-center justify-center w-[108px] h-[101px] rounded-[15px] bg-[#3434340A] hover:opacity-80 transition"
-                             >
-                               <Image
-                                 src={`/${key}.svg`}
-                                 alt={key}
-                                 width={53}
-                                 height={53}
-                               />
-                             </a>
-                           )
-                         )}
-                       </div>
-                     </div>
-                   </div>
-       
-                   {/* QR Code */}
-                   <div className="absolute top-[350px] left-[907px] flex flex-col items-center gap-6">
-                     <div
-                       ref={qrRef}
-                       className="w-[400px] h-[400px] bg-[#F8F8F8] rounded-[16px] border flex items-center justify-center"
-                     >
-                      
-                         <QRCodeSVG
-                           value={profileUrl}
-                           width={300}
-                           height={300}
-                           fgColor="#FFFFFF"
-                           bgColor="#545454BD"
-                         />
-                      
-                     </div>
-                     <div className="flex gap-4">
-                       <button
-                         onClick={handleCopyUrl}
-                         className="flex items-center gap-3 text-[#232323] text-[16px] font-medium rounded-[16px] bg-[#0000000D] hover:bg-[#00000020] px-6 py-2"
-                       >
-                         <Share2 size={15} /> Share Profile URL
-                       </button>
-                       <button
-                         onClick={handleDownloadQr}
-                         className="flex items-center gap-3 text-white text-[16px] font-medium rounded-[16px] bg-gradient-to-r from-[#B007A7] to-[#4F0594] px-6 py-3"
-                       >
-                         <Image src="/scan.svg" alt="QR Icon" width={20} height={20} />
-                         Share QR Code
-                       </button>
-                     </div>
-                   </div>
-                 </div>
-       
-                 {/* Mobile Sections */}
-                 <div className="lg:hidden flex flex-col gap-4 mt-6">
-                   {/* About Myself */}
-                   <div className="bg-[#F8F8F8] p-4 rounded-lg border border-[#0707070A]">
-                     <h2 className="text-lg font-semibold text-[#131313] mb-2">
-                       About Myself
-                     </h2>
-                     <p className="text-[#555] text-sm">
-                       {profile?.bio || "Lorem ipsum..."}
-                     </p>
-                   </div>
-       
-                   {/* Contact */}
-                   <div className="flex flex-col sm:flex-row gap-4">
-                     <div className="flex-1 bg-[#F8F8F8] p-4 rounded-lg border flex items-center gap-4">
-                       <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-[#B007A7] via-[#4F0594] to-[#8C099F] text-white">
-                         <FaPhoneAlt size={20} />
-                       </div>
-                       <p className="text-[#131313] font-medium">
-                         {profile?.phone || "+92 300 0000000"}
-                       </p>
-                     </div>
-                     <div className="flex-1 bg-[#F8F8F8] p-4 rounded-lg border flex items-center gap-4">
-                       <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-[#B007A7] via-[#4F0594] to-[#8C099F] text-white">
-                         <FaEnvelope size={20} />
-                       </div>
-                       <p className="text-[#131313] font-medium">
-                         {user?.email || "example@email.com"}
-                       </p>
-                     </div>
-                   </div>
-       
-                   {/* Social Links */}
-                   <div className="bg-[#F8F8F8] p-4 rounded-lg border border-[#0707070A]">
-                     <h2 className="text-lg font-semibold text-[#131313] mb-2">
-                       Social Links
-                     </h2>
-                     <div className="flex flex-wrap gap-2">
-                       {["whatsapp", "facebook", "linkedin", "instagram"].map(
-                         (key, i) => (
-                           <a
-                             key={i}
-                             href={profile?.socialLinks?.[key] || "#"}
-                             target="_blank"
-                             rel="noopener noreferrer"
-                             className="flex items-center justify-center w-16 h-16 rounded-lg bg-[#3434340A] hover:opacity-80"
-                           >
-                             <Image
-                               src={`/${key}.svg`}
-                               alt={key}
-                               width={38}
-                               height={38}
-                             />
-                           </a>
-                         )
-                       )}
-                     </div>
-                   </div>
-       
-                   {/* QR Code */}
-                   <div className="w-full max-w-[340px] mx-auto opacity-100 rotate-0 bg-[#F8F8F8] rounded-xl p-4 flex flex-col items-center gap-3 mb-6">
-                     {/* QR Section */}
-                     <div
-                       ref={qrRef}
-                       className="w-[240px] sm:w-[280px] md:w-[300px] h-[240px] sm:h-[280px] md:h-[300px] bg-[#F8F8F8] rounded-lg border flex items-center justify-center"
-                     >
-                      
-                         <QRCodeSVG
-                           value={profileUrl}
-                           width={260}
-                           height={260}
-                           fgColor="#FFFFFF"
-                           bgColor="#545454BD"
-                         />
-                       
-                     </div>
-       
-                     {/* Buttons */}
-                     <div className="flex flex-col sm:flex-row justify-center gap-3 w-full">
-                       <button
-                         onClick={handleCopyUrl}
-                         className="flex items-center text-gray-400 justify-center gap-2 px-4 py-2 bg-[#0000000D] rounded-lg text-sm sm:text-base hover:bg-[#00000020] transition"
-                       >
-                         <Share2 size={15} /> Share Profile URL
-                       </button>
-                       <button
-                         onClick={handleDownloadQr}
-                         className="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-[#B007A7] to-[#4F0594] rounded-lg text-white text-sm sm:text-base hover:opacity-90 transition"
-                       >
-                         <Image src="/scan.svg" alt="QR Icon" width={20} height={20} />{" "}
-                         Share QR Code
-                       </button>
-                     </div>
-                   </div>
-                 </div>
+          <div className="hidden lg:block">
+            {/* About / Phone / Email / Social */}
+            <div className="absolute top-[350px] left-[100px] w-[774px] h-[505px] space-y-4">
+              <div className="bg-[#F8F8F8] p-4 rounded-lg border border-[#0707070A]">
+                <h2 className="text-lg font-semibold text-[#131313] mb-2">
+                  About Myself
+                </h2>
+                <p className="text-[#555] text-sm break-words whitespace-pre-wrap">
+                  {profile?.bio || "Lorem ipsum..."}
+                </p>
+              </div>
+              <div className="flex gap-4">
+                <div className="flex-1 bg-[#F8F8F8] p-4 rounded-[16px] border flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-[#B007A7] via-[#4F0594] to-[#8C099F] text-white">
+                    <FaPhoneAlt size={20} />
+                  </div>
+                  <p className="text-[#131313] font-medium">
+                    {profile?.phone || "+92 300 0000000"}
+                  </p>
+                </div>
+                <div className="flex-1 bg-[#F8F8F8] p-4 rounded-[16px] border flex items-center gap-4">
+                  <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-[#B007A7] via-[#4F0594] to-[#8C099F] text-white">
+                    <FaEnvelope size={20} />
+                  </div>
+                  <p className="text-[#131313] font-medium">
+                    {profile?.email || "example@email.com"}
+                  </p>
+                </div>
+              </div>
+              <div className="bg-[#F8F8F8] p-4 rounded-[16px] border">
+                <h2 className="text-[20px] font-semibold text-[#131313] mb-2">
+                  Social Links
+                </h2>
+                <div className="flex gap-4">
+                  {["whatsapp", "facebook", "linkedin", "instagram"].map(
+                    (key, i) => (
+                      <a
+                        key={i}
+                        href={profile?.socialLinks?.[key] || "#"}
+                        target="_blank"
+                        rel="noopener noreferrer"
+                        className="flex items-center justify-center w-[108px] h-[101px] rounded-[15px] bg-[#3434340A] hover:opacity-80 transition"
+                      >
+                        <Image
+                          src={`/${key}.svg`}
+                          alt={key}
+                          width={53}
+                          height={53}
+                        />
+                      </a>
+                    )
+                  )}
+                </div>
+              </div>
+            </div>
+
+            {/* QR Code */}
+            <div className="absolute top-[350px] left-[907px] flex flex-col items-center gap-6">
+              <div
+                ref={qrRef}
+                className="w-[400px] h-[400px] bg-[#F8F8F8] rounded-[16px] border flex items-center justify-center"
+              >
+                <QRCodeSVG
+                  value={profileUrl}
+                  width={300}
+                  height={300}
+                  fgColor="#FFFFFF"
+                  bgColor="#545454BD"
+                />
+              </div>
+              <div className="flex gap-4">
+                <button
+                  onClick={handleCopyUrl}
+                  className="flex items-center gap-3 text-[#232323] text-[16px] font-medium rounded-[16px] bg-[#0000000D] hover:bg-[#00000020] px-6 py-2"
+                >
+                  <Share2 size={15} /> Share Profile URL
+                </button>
+                <button
+                  onClick={handleDownloadQr}
+                  className="flex items-center gap-3 text-white text-[16px] font-medium rounded-[16px] bg-gradient-to-r from-[#B007A7] to-[#4F0594] px-6 py-3"
+                >
+                  <Image src="/scan.svg" alt="QR Icon" width={20} height={20} />
+                  Share QR Code
+                </button>
+              </div>
+            </div>
+          </div>
+
+          {/* Mobile Sections */}
+          <div className="lg:hidden flex flex-col gap-4 mt-6">
+            {/* About Myself */}
+            <div className="bg-[#F8F8F8] p-4 rounded-lg border border-[#0707070A]">
+              <h2 className="text-lg font-semibold text-[#131313] mb-2">
+                About Myself
+              </h2>
+              <p className="text-[#555] text-sm">
+                {profile?.bio || "Lorem ipsum..."}
+              </p>
+            </div>
+
+            {/* Contact */}
+            <div className="flex flex-col sm:flex-row gap-4">
+              <div className="flex-1 bg-[#F8F8F8] p-4 rounded-lg border flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-[#B007A7] via-[#4F0594] to-[#8C099F] text-white">
+                  <FaPhoneAlt size={20} />
+                </div>
+                <p className="text-[#131313] font-medium">
+                  {profile?.phone || "+92 300 0000000"}
+                </p>
+              </div>
+              <div className="flex-1 bg-[#F8F8F8] p-4 rounded-lg border flex items-center gap-4">
+                <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-[#B007A7] via-[#4F0594] to-[#8C099F] text-white">
+                  <FaEnvelope size={20} />
+                </div>
+                <p className="text-[#131313] font-medium">
+                  {user?.email || "example@email.com"}
+                </p>
+              </div>
+            </div>
+
+            {/* Social Links */}
+            <div className="bg-[#F8F8F8] p-4 rounded-lg border border-[#0707070A]">
+              <h2 className="text-lg font-semibold text-[#131313] mb-2">
+                Social Links
+              </h2>
+              <div className="flex flex-wrap gap-2">
+                {["whatsapp", "facebook", "linkedin", "instagram"].map(
+                  (key, i) => (
+                    <a
+                      key={i}
+                      href={profile?.socialLinks?.[key] || "#"}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="flex items-center justify-center w-16 h-16 rounded-lg bg-[#3434340A] hover:opacity-80"
+                    >
+                      <Image
+                        src={`/${key}.svg`}
+                        alt={key}
+                        width={38}
+                        height={38}
+                      />
+                    </a>
+                  )
+                )}
+              </div>
+            </div>
+
+            {/* QR Code */}
+            <div className="w-full max-w-[340px] mx-auto opacity-100 rotate-0 bg-[#F8F8F8] rounded-xl p-4 flex flex-col items-center gap-3 mb-6">
+              {/* QR Section */}
+              <div
+                ref={qrRef}
+                className="w-[240px] sm:w-[280px] md:w-[300px] h-[240px] sm:h-[280px] md:h-[300px] bg-[#F8F8F8] rounded-lg border flex items-center justify-center"
+              >
+                <QRCodeSVG
+                  value={profileUrl}
+                  width={260}
+                  height={260}
+                  fgColor="#FFFFFF"
+                  bgColor="#545454BD"
+                />
+              </div>
+
+              {/* Buttons */}
+              <div className="flex flex-col sm:flex-row justify-center gap-3 w-full">
+                <button
+                  onClick={handleCopyUrl}
+                  className="flex items-center text-gray-400 justify-center gap-2 px-4 py-2 bg-[#0000000D] rounded-lg text-sm sm:text-base hover:bg-[#00000020] transition"
+                >
+                  <Share2 size={15} /> Share Profile URL
+                </button>
+                <button
+                  onClick={handleDownloadQr}
+                  className="flex items-center justify-center gap-2 px-4 py-2 bg-gradient-to-r from-[#B007A7] to-[#4F0594] rounded-lg text-white text-sm sm:text-base hover:opacity-90 transition"
+                >
+                  <Image src="/scan.svg" alt="QR Icon" width={20} height={20} />{" "}
+                  Share QR Code
+                </button>
+              </div>
+            </div>
+          </div>
         </div>
       </div>
       <Footer />

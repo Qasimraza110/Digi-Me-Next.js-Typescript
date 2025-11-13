@@ -145,11 +145,11 @@ export default function ProfilePage() {
       // Fallback local image
       return (
         <img
-          src="/userpic.jpg"
+          src="/user.png"
           alt="Profile"
           width={188}
           height={188}
-          className="rounded-full object-cover"
+          className="rounded-full object-cover opacity-10"
         />
       );
     }
@@ -194,7 +194,6 @@ export default function ProfilePage() {
   return (
     <div className="min-h-screen flex flex-col bg-white">
       <ToastContainer />
-
 
       <div className="flex-1 relative overflow-auto px-4 sm:px-6 md:px-16 lg:px-[75px]">
         <NavBar />
@@ -252,8 +251,7 @@ export default function ProfilePage() {
                   </div>
                 </div>
 
-                <div
-                  className="flex flex-wrap items-center justify-center lg:justify-start gap-2 lg:gap-4 mt-3 lg:mt-0">
+                <div className="flex flex-wrap items-center justify-center lg:justify-start gap-2 lg:gap-4 mt-3 lg:mt-0">
                   {/* Scan Button */}
                   <button
                     onClick={() => router.push("/scan")}
@@ -342,16 +340,24 @@ export default function ProfilePage() {
                 <h2 className="text-[20px] font-semibold text-[#131313] mb-2">
                   About Myself
                 </h2>
-                <p className="text-[16px] text-[#555]">
-                  {user?.bio || "Lorem ipsum..."}
-                </p>
+                  <p
+                    className={`font-medium ${
+                      user?.bio ? "text-[#131313]" : "text-gray-400"
+                    }`}
+                  >
+                    {user?.bio || "about yourself"}
+                  </p>
               </div>
               <div className="flex gap-4">
                 <div className="flex-1 bg-[#F8F8F8] p-4 rounded-[16px] border flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-[#B007A7] via-[#4F0594] to-[#8C099F] text-white">
                     <FaPhoneAlt size={20} />
                   </div>
-                  <p className="text-[#131313] font-medium">
+                  <p
+                    className={`font-medium ${
+                      user?.phone ? "text-[#131313]" : "text-gray-400"
+                    }`}
+                  >
                     {user?.phone || "+92 300 0000000"}
                   </p>
                 </div>
@@ -359,8 +365,12 @@ export default function ProfilePage() {
                   <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-[#B007A7] via-[#4F0594] to-[#8C099F] text-white">
                     <FaEnvelope size={20} />
                   </div>
-                  <p className="text-[#131313] font-medium">
-                    {user?.email || "example@email.com"}
+                  <p
+                    className={`font-medium ${
+                      user?.email ? "text-[#131313]" : "text-gray-400"
+                    }`}
+                  >
+                    {user?.email || "example@gmail.com"}
                   </p>
                 </div>
               </div>
@@ -440,9 +450,13 @@ export default function ProfilePage() {
               <h2 className="text-lg font-semibold text-[#131313] mb-2">
                 About Myself
               </h2>
-              <p className="text-[#555] text-sm break-words whitespace-pre-wrap">
-                {user?.bio || "Lorem ipsum..."}
-              </p>
+              <p
+                    className={`font-medium ${
+                      user?.bio ? "text-[#131313]" : "text-gray-400"
+                    }`}
+                  >
+                    {user?.bio || "about yourself"}
+                  </p>
             </div>
 
             {/* Contact */}
@@ -451,7 +465,11 @@ export default function ProfilePage() {
                 <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-[#B007A7] via-[#4F0594] to-[#8C099F] text-white">
                   <FaPhoneAlt size={20} />
                 </div>
-                <p className="text-[#131313] font-medium">
+                <p
+                  className={`font-medium ${
+                    user?.phone ? "text-[#131313]" : "text-gray-400"
+                  }`}
+                >
                   {user?.phone || "+92 300 0000000"}
                 </p>
               </div>
@@ -459,9 +477,13 @@ export default function ProfilePage() {
                 <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-[#B007A7] via-[#4F0594] to-[#8C099F] text-white">
                   <FaEnvelope size={20} />
                 </div>
-                <p className="text-[#131313] font-medium">
-                  {user?.email || "example@email.com"}
-                </p>
+                <p
+                    className={`font-medium ${
+                      user?.email ? "text-[#131313]" : "text-gray-400"
+                    }`}
+                  >
+                    {user?.email || "example@gmail.com"}
+                  </p>
               </div>
             </div>
 

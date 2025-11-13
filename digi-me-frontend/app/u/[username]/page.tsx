@@ -420,16 +420,24 @@ export default function PublicProfile() {
                 <h2 className="text-lg font-semibold text-[#131313] mb-2">
                   About Myself
                 </h2>
-                <p className="text-[#555] text-sm break-words whitespace-pre-wrap">
-                  {profile?.bio || "Lorem ipsum..."}
-                </p>
+               <p
+                    className={`font-medium ${
+                      profile?.bio ? "text-[#131313]" : "text-gray-400"
+                    }`}
+                  >
+                    {profile?.bio || "About Yourself"}
+                  </p>
               </div>
               <div className="flex gap-4">
                 <div className="flex-1 bg-[#F8F8F8] p-4 rounded-[16px] border flex items-center gap-4">
                   <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-[#B007A7] via-[#4F0594] to-[#8C099F] text-white">
                     <FaPhoneAlt size={20} />
                   </div>
-                  <p className="text-[#131313] font-medium">
+                  <p
+                    className={`font-medium ${
+                      profile?.phone ? "text-[#131313]" : "text-gray-400"
+                    }`}
+                  >
                     {profile?.phone || "+92 300 0000000"}
                   </p>
                 </div>
@@ -437,8 +445,12 @@ export default function PublicProfile() {
                   <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-[#B007A7] via-[#4F0594] to-[#8C099F] text-white">
                     <FaEnvelope size={20} />
                   </div>
-                  <p className="text-[#131313] font-medium">
-                    {profile?.email || "example@email.com"}
+                  <p
+                    className={`font-medium ${
+                      profile?.email ? "text-[#131313]" : "text-gray-400"
+                    }`}
+                  >
+                    {profile?.email || "example@gmail.com"}
                   </p>
                 </div>
               </div>
@@ -508,9 +520,13 @@ export default function PublicProfile() {
               <h2 className="text-lg font-semibold text-[#131313] mb-2">
                 About Myself
               </h2>
-              <p className="text-[#555] text-sm">
-                {profile?.bio || "Lorem ipsum..."}
-              </p>
+              <p
+                    className={`font-medium ${
+                      profile?.bio ? "text-[#131313]" : "text-gray-400"
+                    }`}
+                  >
+                    {profile?.bio || "About yourself"}
+                  </p>
             </div>
 
             {/* Contact */}
@@ -519,17 +535,25 @@ export default function PublicProfile() {
                 <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-[#B007A7] via-[#4F0594] to-[#8C099F] text-white">
                   <FaPhoneAlt size={20} />
                 </div>
-                <p className="text-[#131313] font-medium">
-                  {profile?.phone || "+92 300 0000000"}
-                </p>
+               <p
+                    className={`font-medium ${
+                      profile?.phone ? "text-[#131313]" : "text-gray-400"
+                    }`}
+                  >
+                    {profile?.phone || "+92 300 0000000"}
+                  </p>
               </div>
               <div className="flex-1 bg-[#F8F8F8] p-4 rounded-lg border flex items-center gap-4">
                 <div className="w-10 h-10 rounded-full flex items-center justify-center bg-gradient-to-r from-[#B007A7] via-[#4F0594] to-[#8C099F] text-white">
                   <FaEnvelope size={20} />
                 </div>
-                <p className="text-[#131313] font-medium">
-                  {user?.email || "example@email.com"}
-                </p>
+                <p
+                    className={`font-medium ${
+                      profile?.email ? "text-[#131313]" : "text-gray-400"
+                    }`}
+                  >
+                    {profile?.email || "example@gmail.com"}
+                  </p>
               </div>
             </div>
 

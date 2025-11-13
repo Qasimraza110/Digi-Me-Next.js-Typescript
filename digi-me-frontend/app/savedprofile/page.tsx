@@ -237,8 +237,8 @@ export default function SavedProfilePage() {
       {confirmDeleteId && (
         <div className="fixed inset-0 flex items-center justify-center z-50">
           <div className="bg-white p-6 rounded-lg shadow-lg w-[300px] text-center">
-            <h2 className="text-lg text-black font-bold mb-4">Are you sure?</h2>
-            <p className="mb-6 text-black">This action cannot be undone.</p>
+            <h2 className="text-lg text-black font-bold mb-4">Are you sure ?</h2>
+            <p className="mb-6 text-black">To delete this saved file.</p>
             <div className="flex justify-center gap-4">
               <button
                 onClick={() => {

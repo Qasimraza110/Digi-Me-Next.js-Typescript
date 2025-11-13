@@ -533,16 +533,9 @@ export default function ProfilePage() {
                       handleInputChange(e);
                     }
                   }}
-                  className={`w-full h-[48px] bg-[#F8F8F8] px-4 text-[16px] font-medium text-[#1E1E1E] placeholder:text-gray-400 focus:outline-none rounded-[16px] border ${
-                    errors.phone ? "border-red-500" : "border-[#EEEEEE]"
-                  }`}
+                  className={`w-full h-[48px] bg-[#F8F8F8] px-4 text-[16px] font-medium text-[#1E1E1E] placeholder:text-gray-400 focus:outline-none rounded-[16px] border`}
                 />
 
-                {errors.phone && (
-                  <p className="text-red-500 text-sm font-medium mt min-h-[20px]">
-                    Please enter a valid number
-                  </p>
-                )}
               </div>
 
               {/* Email */}

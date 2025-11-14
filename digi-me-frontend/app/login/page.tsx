@@ -1,24 +1,13 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useEffect } from "react";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { ToastContainer, toast } from "react-toastify";
-import { FaGoogle } from "react-icons/fa";
-
 import "react-toastify/dist/ReactToastify.css";
 import Footer from "@/components/footer/page";
-
-declare global {
-  interface Window {
-    google?: any;
-  }
-}
-
-interface GoogleCredentialResponse {
-  credential: string;
-}
+import { GoogleOAuthProvider, GoogleLogin, CredentialResponse } from "@react-oauth/google";
 
 const BACKEND_URL = "http://localhost:5000";
 
@@ -28,18 +17,16 @@ export default function LoginPage() {
   const [rememberMe, setRememberMe] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
-  const [isValidClientId, setIsValidClientId] = useState(true);
-  const [redirectTo, setRedirectTo] = useState("/profile"); // <-- default safe value
-  const googleButtonRef = useRef<HTMLDivElement | null>(null);
+  const [redirectTo, setRedirectTo] = useState("/profile");
   const router = useRouter();
 
-  // 🔹 Get redirect query param safely in useEffect
+  // Get redirect query param safely
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
     setRedirectTo(params.get("redirect") || "/profile");
   }, []);
 
-  // 🔹 Load remembered credentials
+  // Load remembered credentials
   useEffect(() => {
     const savedEmail = localStorage.getItem("rememberEmail");
     const savedPassword = localStorage.getItem("rememberPassword");
@@ -76,7 +63,7 @@ export default function LoginPage() {
             color: "#fff",
           },
         });
-        setTimeout(() => router.push(redirectTo), 1500); // safe redirect
+        setTimeout(() => router.push(redirectTo), 1500);
       } else {
         toast.error(data.message || "Invalid credentials", {
           position: "top-right",
@@ -100,11 +87,9 @@ export default function LoginPage() {
     }
   };
 
-  const handleGoogleCredentialResponse = async (
-    response: GoogleCredentialResponse
-  ) => {
-    if (!navigator.onLine) {
-      toast.error("You're offline. Please connect to the internet.");
+  const handleGoogleLogin = async (response: CredentialResponse) => {
+    if (!response.credential) {
+      toast.error("Google login failed: no credential returned");
       return;
     }
     setIsLoading(true);
@@ -136,8 +121,7 @@ export default function LoginPage() {
           },
         });
       }
-    } catch (error) {
-      console.error(error);
+    } catch {
       toast.error("Google Sign-in failed. Please try again.", {
         position: "top-right",
         style: {
@@ -151,107 +135,70 @@ export default function LoginPage() {
     }
   };
 
-  // 🔹 Google Sign-In initialization
-  useEffect(() => {
-    if (document.getElementById("google-client-script")) return;
-    const script = document.createElement("script");
-    script.src = "https://accounts.google.com/gsi/client";
-    script.id = "google-client-script";
-    script.async = true;
-    script.defer = true;
-    script.onload = () => {
-      if (window.google) {
-        try {
-          window.google.accounts.id.initialize({
-            client_id:
-              "886314339765-4krud7b7jn2mg5ooahcjiha0nqkb6l3k.apps.googleusercontent.com",
-            callback: handleGoogleCredentialResponse,
-            auto_select: false,
-          });
-          if (googleButtonRef.current) {
-            window.google.accounts.id.renderButton(googleButtonRef.current, {
-             
-              theme: "outline",
-              size: "large",
-              shape: "rectangular",
-              width: 200,
-            });
-          }
-          window.google.accounts.id.prompt();
-        } catch {
-          setIsValidClientId(false);
-        }
-      } else setIsValidClientId(false);
-    };
-    document.head.appendChild(script);
-    return () => {
-      if (window.google?.accounts.id) window.google.accounts.id.cancel();
-    };
-  }, []);
-
   return (
-    <div className="min-h-screen w-full relative flex flex-col justify-between">
-      <ToastContainer position="top-right" autoClose={2000} />
+    <GoogleOAuthProvider clientId="886314339765-4krud7b7jn2mg5ooahcjiha0nqkb6l3k.apps.googleusercontent.com">
+      <div className="min-h-screen w-full relative flex flex-col justify-between">
+        <ToastContainer position="top-right" autoClose={2000} />
 
-      {/* Background */}
-      <div className="absolute inset-0 bg-[url('/merge.svg')] bg-cover bg-top bg-no-repeat -z-10" />
+        {/* Background */}
+        <div className="absolute inset-0 bg-[url('/merge.svg')] bg-cover bg-top bg-no-repeat -z-10" />
 
-      {/* Overlay for desktop */}
-      <div className="absolute hidden lg:block bg-[url('/loginlogo.svg')] bg-contain bg-no-repeat w-[25%] h-full top-0 right-0 -z-10" />
+        {/* Overlay for desktop */}
+        <div className="absolute hidden lg:block bg-[url('/loginlogo.svg')] bg-contain bg-no-repeat w-[25%] h-full top-0 right-0 -z-10" />
 
-      {/* Main content */}
-      <div className="relative flex-1 flex flex-col lg:flex-row justify-center items-center px-4 py-8 lg:py-0 z-10">
-        <div className="flex flex-col lg:flex-row w-full lg:w-[1280px] mx-auto gap-8 items-center">
-          {/* LEFT SECTION */}
-          <div className="flex-1 flex flex-col justify-center items-start text-left mb-6 lg:mb-0">
-            <div className="flex items-center space-x-4 mb-4 lg:mb-12">
-              <Image
-                src="/group.svg"
-                alt="Logo"
-                width={83}
-                height={74}
-                className="object-contain"
+        {/* Main content */}
+        <div className="relative flex-1 flex flex-col lg:flex-row justify-center items-center px-4 py-8 lg:py-0 z-10">
+          <div className="flex flex-col lg:flex-row w-full lg:w-[1280px] mx-auto gap-8 items-center">
+            {/* LEFT SECTION */}
+            <div className="flex-1 flex flex-col justify-center items-start text-left mb-6 lg:mb-0">
+              <div className="flex items-center space-x-4 mb-4 lg:mb-12">
+                <Image
+                  src="/group.svg"
+                  alt="Logo"
+                  width={83}
+                  height={74}
+                  className="object-contain"
+                />
+                <h1 className="font-bold text-black text-[48px] leading-[58px]">
+                  DigiMe
+                  <span className="inline-block w-3 h-3 bg-black rounded-full ml-1"></span>
+                </h1>
+              </div>
+              <div className="max-w-[580px]">
+                <p className="text-black font-roboto font-bold text-[28px] lg:text-[48px] leading-[36px] lg:leading-[64px] capitalize">
+                  Log in to access your{" "}
+                  <span className="text-[#AD06A6]">Personalized</span> profile,
+                  connect with others.{" "}
+                  <span className="text-[#AD06A6]">Your Network, Your Way!</span>
+                </p>
+              </div>
+            </div>
+
+            {/* RIGHT SECTION */}
+            <div className="flex-1 flex justify-center items-center w-full">
+              <FormUI
+                email={email}
+                setEmail={setEmail}
+                password={password}
+                setPassword={setPassword}
+                rememberMe={rememberMe}
+                setRememberMe={setRememberMe}
+                handleLogin={handleLogin}
+                handleGoogleLogin={handleGoogleLogin}
+                isLoading={isLoading}
+                showPassword={showPassword}
+                setShowPassword={setShowPassword}
               />
-              <h1 className="font-bold text-black text-[48px] leading-[58px]">
-                DigiMe
-                <span className="inline-block w-3 h-3 bg-black rounded-full ml-1"></span>
-              </h1>
             </div>
-            <div className="max-w-[580px]">
-              <p className="text-black font-roboto font-bold text-[28px] lg:text-[48px] leading-[36px] lg:leading-[64px] capitalize">
-                Log in to access your{" "}
-                <span className="text-[#AD06A6]">Personalized</span> profile,
-                connect with others.{" "}
-                <span className="text-[#AD06A6]">Your Network, Your Way!</span>
-              </p>
-            </div>
-          </div>
-
-          {/* RIGHT SECTION */}
-          <div className="flex-1 flex justify-center items-center w-full">
-            <FormUI
-              email={email}
-              setEmail={setEmail}
-              password={password}
-              setPassword={setPassword}
-              rememberMe={rememberMe}
-              setRememberMe={setRememberMe}
-              handleLogin={handleLogin}
-              googleButtonRef={googleButtonRef}
-              isValidClientId={isValidClientId}
-              isLoading={isLoading}
-              showPassword={showPassword}
-              setShowPassword={setShowPassword}
-            />
           </div>
         </div>
-      </div>
 
-      {/* Footer only for mobile */}
-      <div className="lg:hidden relative z-10">
-        <Footer />
+        {/* Footer only for mobile */}
+        <div className="lg:hidden relative z-10">
+          <Footer />
+        </div>
       </div>
-    </div>
+    </GoogleOAuthProvider>
   );
 }
 
@@ -263,8 +210,7 @@ function FormUI({
   rememberMe,
   setRememberMe,
   handleLogin,
-  googleButtonRef,
-  isValidClientId,
+  handleGoogleLogin,
   isLoading,
   showPassword,
   setShowPassword,
@@ -353,34 +299,13 @@ function FormUI({
         Or Login With
       </p>
 
-      {/* Google Button */}
-      <div
-        ref={googleButtonRef}
-        className={`flex items-center justify-center rounded-[12px] mx-auto transition w-full max-w-[400px] h-[65px] ${
-          isValidClientId
-            ? "hover:bg-gray-50/10 cursor-pointer"
-            : "opacity-50 cursor-not-allowed"
-        }`}
-      >
-        {!isValidClientId && (
-          <span className="ml-2 text-sm text-gray-500">(Not configured)</span>
-        )}
+      {/* Google Login */}
+      <div className="flex justify-center mt-2">
+        <GoogleLogin
+          onSuccess={handleGoogleLogin}
+          onError={() => toast.error("Google login failed")}
+        />
       </div>
-
-
-      {/* <div className="cursor-pointer" ref={googleButtonRef}>
-        <div className="bg-white py-2.5 rounded-md flex justify-center items-center gap-5">
-          {!isValidClientId && (
-            <span className="ml-2 text-sm text-gray-500 truncate">
-              (Not configured)
-            </span>
-          )}
-          <h1 className="text-black">
-            <FaGoogle />
-          </h1>
-          <h1 className="text-black">Sign in with Google</h1>
-        </div>
-      </div> */}
 
       {/* Signup Link */}
       <div className="flex justify-center mt-2">

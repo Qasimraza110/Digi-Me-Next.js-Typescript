@@ -17,13 +17,12 @@ export const useGoogleAuth = ({
   const [isInitialized, setIsInitialized] = useState(false);
   const buttonRef = useRef<HTMLDivElement>(null);
 
-  // ✅ Proper Client ID validation (no unnecessary checks)
   const isValidClientId =
     typeof clientId === "string" &&
     clientId.trim().length > 0 &&
     !clientId.includes("your-google-client-id");
 
-  // ✅ Load Google script dynamically
+  // Load Google script dynamically
   useEffect(() => {
     if (!isValidClientId) {
       console.error(
@@ -33,17 +32,13 @@ export const useGoogleAuth = ({
       return;
     }
 
-    // Load the Google Identity script only once
     if (!window.google) {
       const script = document.createElement("script");
       script.src = "https://accounts.google.com/gsi/client";
       script.async = true;
       script.defer = true;
 
-      script.onload = () => {
-        setIsGoogleLoaded(true);
-      };
-
+      script.onload = () => setIsGoogleLoaded(true);
       script.onerror = () => {
         console.error("❌ Failed to load Google OAuth script");
         onError?.("Failed to load Google OAuth script");
@@ -55,21 +50,19 @@ export const useGoogleAuth = ({
     }
   }, [isValidClientId, onError]);
 
-  // ✅ Initialize Google ID client
+  // Initialize Google ID client
   useEffect(() => {
     if (isGoogleLoaded && !isInitialized && isValidClientId && window.google) {
       try {
         window.google.accounts.id.initialize({
           client_id: clientId,
-          callback: (response: any) => {
+          callback: (response: { credential?: string }) => {
             if (response.credential) {
               onSuccess(response.credential);
             } else {
               onError?.("No credential returned from Google");
             }
           },
-          auto_select: false,
-          cancel_on_tap_outside: true,
         });
 
         setIsInitialized(true);
@@ -80,7 +73,7 @@ export const useGoogleAuth = ({
     }
   }, [isGoogleLoaded, isInitialized, isValidClientId, clientId, onSuccess, onError]);
 
-  // ✅ Click handler to trigger Google sign-in prompt
+  // Click handler to trigger Google sign-in prompt
   const handleGoogleClick = () => {
     if (isInitialized && window.google && isValidClientId) {
       try {

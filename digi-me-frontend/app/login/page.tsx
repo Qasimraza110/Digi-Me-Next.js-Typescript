@@ -5,6 +5,8 @@ import { useRouter } from "next/navigation";
 import Image from "next/image";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
 import { ToastContainer, toast } from "react-toastify";
+import { FaGoogle } from "react-icons/fa";
+
 import "react-toastify/dist/ReactToastify.css";
 import Footer from "@/components/footer/page";
 
@@ -168,10 +170,11 @@ export default function LoginPage() {
           });
           if (googleButtonRef.current) {
             window.google.accounts.id.renderButton(googleButtonRef.current, {
+             
               theme: "outline",
               size: "large",
               shape: "rectangular",
-              width: 400,
+              width: 200,
             });
           }
           window.google.accounts.id.prompt();
@@ -185,7 +188,7 @@ export default function LoginPage() {
       if (window.google?.accounts.id) window.google.accounts.id.cancel();
     };
   }, []);
-  
+
   return (
     <div className="min-h-screen w-full relative flex flex-col justify-between">
       <ToastContainer position="top-right" autoClose={2000} />
@@ -199,18 +202,26 @@ export default function LoginPage() {
       {/* Main content */}
       <div className="relative flex-1 flex flex-col lg:flex-row justify-center items-center px-4 py-8 lg:py-0 z-10">
         <div className="flex flex-col lg:flex-row w-full lg:w-[1280px] mx-auto gap-8 items-center">
-
           {/* LEFT SECTION */}
           <div className="flex-1 flex flex-col justify-center items-start text-left mb-6 lg:mb-0">
             <div className="flex items-center space-x-4 mb-4 lg:mb-12">
-              <Image src="/group.svg" alt="Logo" width={83} height={74} className="object-contain" />
+              <Image
+                src="/group.svg"
+                alt="Logo"
+                width={83}
+                height={74}
+                className="object-contain"
+              />
               <h1 className="font-bold text-black text-[48px] leading-[58px]">
-                DigiMe<span className="inline-block w-3 h-3 bg-black rounded-full ml-1"></span>
+                DigiMe
+                <span className="inline-block w-3 h-3 bg-black rounded-full ml-1"></span>
               </h1>
             </div>
             <div className="max-w-[580px]">
               <p className="text-black font-roboto font-bold text-[28px] lg:text-[48px] leading-[36px] lg:leading-[64px] capitalize">
-                Log in to access your <span className="text-[#AD06A6]">Personalized</span> profile, connect with others.{" "}
+                Log in to access your{" "}
+                <span className="text-[#AD06A6]">Personalized</span> profile,
+                connect with others.{" "}
                 <span className="text-[#AD06A6]">Your Network, Your Way!</span>
               </p>
             </div>
@@ -263,11 +274,15 @@ function FormUI({
       onSubmit={handleLogin}
       className="relative flex flex-col justify-start space-y-5 p-6 sm:p-8 rounded-[20px] shadow-xl custom-bg w-full max-w-[550px] sm:max-w-[500px] mx-auto"
     >
-      <h1 className="font-bold text-gray-800 text-[30px] text-left mb-2">Welcome Back!</h1>
+      <h1 className="font-bold text-gray-800 text-[30px] text-left mb-2">
+        Welcome Back!
+      </h1>
 
       {/* Email */}
       <div>
-        <label className="block text-sm font-medium text-gray-700 mb-1">Email Address*</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Email Address*
+        </label>
         <input
           type="email"
           required
@@ -280,7 +295,9 @@ function FormUI({
 
       {/* Password */}
       <div className="relative w-full">
-        <label className="block text-sm font-medium text-gray-700 mb-1">Password*</label>
+        <label className="block text-sm font-medium text-gray-700 mb-1">
+          Password*
+        </label>
         <div className="relative">
           <input
             type={showPassword ? "text" : "password"}
@@ -294,7 +311,11 @@ function FormUI({
             className="absolute inset-y-0 right-3 flex items-center cursor-pointer text-gray-500 hover:text-purple-600"
             onClick={() => setShowPassword(!showPassword)}
           >
-            {showPassword ? <AiOutlineEyeInvisible size={22} /> : <AiOutlineEye size={22} />}
+            {showPassword ? (
+              <AiOutlineEyeInvisible size={22} />
+            ) : (
+              <AiOutlineEye size={22} />
+            )}
           </div>
         </div>
       </div>
@@ -310,7 +331,10 @@ function FormUI({
           />
           <span className="text-sm text-gray-600">Remember Me</span>
         </label>
-        <a href="/forgot" className="text-sm text-gray-600 hover:text-purple-600">
+        <a
+          href="/forgot"
+          className="text-sm text-gray-600 hover:text-purple-600"
+        >
           Forgot Password?
         </a>
       </div>
@@ -325,23 +349,47 @@ function FormUI({
       </button>
 
       {/* Divider */}
-      <p className="text-center text-[#1E1E1E] font-roboto font-medium text-[16px] mt-2">Or Login With</p>
+      <p className="text-center text-[#1E1E1E] font-roboto font-medium text-[16px] mt-2">
+        Or Login With
+      </p>
 
       {/* Google Button */}
       <div
         ref={googleButtonRef}
-        className={`flex items-center justify-center rounded-[12px] transition backdrop-blur-sm w-full sm:w-[90%] h-[65px] mx-auto ${
-          isValidClientId ? "hover:bg-gray-50/10 cursor-pointer" : "opacity-50 cursor-not-allowed"
+        className={`flex items-center justify-center rounded-[12px] mx-auto transition w-full max-w-[400px] h-[65px] ${
+          isValidClientId
+            ? "hover:bg-gray-50/10 cursor-pointer"
+            : "opacity-50 cursor-not-allowed"
         }`}
       >
-        {!isValidClientId && <span className="ml-2 text-sm text-gray-500">(Not configured)</span>}
+        {!isValidClientId && (
+          <span className="ml-2 text-sm text-gray-500">(Not configured)</span>
+        )}
       </div>
+
+
+      {/* <div className="cursor-pointer" ref={googleButtonRef}>
+        <div className="bg-white py-2.5 rounded-md flex justify-center items-center gap-5">
+          {!isValidClientId && (
+            <span className="ml-2 text-sm text-gray-500 truncate">
+              (Not configured)
+            </span>
+          )}
+          <h1 className="text-black">
+            <FaGoogle />
+          </h1>
+          <h1 className="text-black">Sign in with Google</h1>
+        </div>
+      </div> */}
 
       {/* Signup Link */}
       <div className="flex justify-center mt-2">
         <p className="font-medium text-[16px] text-[#1E1E1E]">
           Don’t have an account?
-          <a href="/register" className="text-[#AD06A6] ml-1 font-medium no-underline">
+          <a
+            href="/register"
+            className="text-[#AD06A6] ml-1 font-medium no-underline"
+          >
             Signup
           </a>
         </p>

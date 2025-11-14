@@ -135,7 +135,7 @@ export default function RegisterPage() {
               theme: "outline",
               size: "large",
               shape: "rectangular",
-              width: 400,
+              width: 200,
             });
           }
           window.google.accounts.id.prompt();
@@ -171,12 +171,12 @@ export default function RegisterPage() {
             height={45}
             className="object-contain"
           />
-          <h1 className="font-bold text-black text-[24px] leading-[28px]">
+          <h1 className="font-bold text-black text-[30px] leading-[28px]">
             DigiMe
             <span className="inline-block w-2 h-2 bg-black rounded-full ml-1"></span>
           </h1>
         </div>
-        <p className="text-black font-roboto font-bold text-[20px] sm:text-[24px] leading-[28px]">
+        <p className="text-black font-roboto font-bold text-[30px] sm:text-[24px] leading-[28px]">
           Just some details to{" "}
           <span className="text-[#AD06A6] block lg:inline mt-1 lg:mt-0">
             get you in!
@@ -331,7 +331,7 @@ function FormUI({
       {/* Google Button */}
       <div
         ref={googleButtonRef}
-        className={`flex items-center justify-center rounded-[12px] mx-auto transition backdrop-blur-sm w-full max-w-[400px] h-[65px] ${
+        className={`flex items-center justify-center rounded-[12px] mx-auto transition w-full max-w-[400px] h-[65px] ${
           isValidClientId
             ? "hover:bg-gray-50/10 cursor-pointer"
             : "opacity-50 cursor-not-allowed"

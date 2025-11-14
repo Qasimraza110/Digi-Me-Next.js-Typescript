@@ -36,9 +36,12 @@ export default function AccountSettingPage() {
 
     const fetchProfile = async () => {
       try {
-        const res = await fetch("http://localhost:5000/api/profile/account/me", {
-          headers: { Authorization: `Bearer ${token}` },
-        });
+        const res = await fetch(
+          "http://localhost:5000/api/profile/account/me",
+          {
+            headers: { Authorization: `Bearer ${token}` },
+          }
+        );
         if (!res.ok) throw new Error();
         const data = await res.json();
         setUser(data);
@@ -115,14 +118,17 @@ export default function AccountSettingPage() {
     if (formData.password.trim()) payload.password = formData.password.trim();
 
     try {
-      const res = await fetch("http://localhost:5000/api/profile/account/update", {
-        method: "PUT",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify(payload),
-      });
+      const res = await fetch(
+        "http://localhost:5000/api/profile/account/update",
+        {
+          method: "PUT",
+          headers: {
+            "Content-Type": "application/json",
+            Authorization: `Bearer ${token}`,
+          },
+          body: JSON.stringify(payload),
+        }
+      );
 
       const data = await res.json();
 
@@ -225,22 +231,26 @@ export default function AccountSettingPage() {
                   User Name
                 </label>
                 <div className="flex flex-col">
-  <input
-    name="username"
-    type="text"
-    value={formData.username}
-    onChange={handleInputChange}
-    className={`h-12 rounded-[16px] bg-[#F8F8F8] text-black border px-4 placeholder:text-gray-400 ${
-      errors.username ? "border-red-500" : "border-gray-300"
-    }`}
-    placeholder="Enter username"
-  />
-  {/* Always render the <p>, use empty string if no error */}
-  <p className="text-red-500 text-sm font-medium ml-2 min-h-[1.25rem]">
-    {errors.username ? "Username can only contain letters, numbers, and underscores" : ""}
-  </p>
-</div>
-
+                  <input
+                    name="username"
+                    type="text"
+                    value={formData.username}
+                    onChange={handleInputChange}
+                    className={`h-12 rounded-[16px] bg-[#F8F8F8] text-black border px-4 placeholder:text-gray-400 ${
+                      errors.username ? "border-red-500" : "border-gray-300"
+                    }`}
+                    placeholder="Enter username"
+                  />
+                  {/* Always render the <p>, use empty string if no error */}
+                  {errors.username ? (
+                    <p className="text-red-500 text-sm font-medium ml-2 min-h-[1.25rem]">
+                      Username can only contain letters, numbers, and
+                      underscoress
+                    </p>
+                  ) : (
+                    ""
+                  )}
+                </div>
               </div>
 
               {/* Email */}
@@ -248,23 +258,26 @@ export default function AccountSettingPage() {
                 <label className="mb-2 text-black text-[16px] font-medium">
                   Email
                 </label>
-              <div className="flex flex-col">
-  <input
-    name="email"
-    type="email"
-    value={formData.email}
-    onChange={handleInputChange}
-    className={`h-12 rounded-[16px] bg-[#F8F8F8] text-black border px-4 placeholder:text-gray-400 ${
-      errors.email ? "border-red-500" : "border-gray-300"
-    }`}
-    placeholder="Enter email"
-  />
-  {/* Reserve fixed height for error message to prevent layout shift */}
-  <p className="text-red-500 text-sm font-medium ml-2 min-h-[1.25rem]">
-    {errors.email ? "Please enter a valid email" : ""}
-  </p>
-</div>
-
+                <div className="flex flex-col">
+                  <input
+                    name="email"
+                    type="email"
+                    value={formData.email}
+                    onChange={handleInputChange}
+                    className={`h-12 rounded-[16px] bg-[#F8F8F8] text-black border px-4 placeholder:text-gray-400 ${
+                      errors.email ? "border-red-500" : "border-gray-300"
+                    }`}
+                    placeholder="Enter email"
+                  />
+                  {/* Reserve fixed height for error message to prevent layout shift */}
+                  {errors.email ? (
+                    <p className="text-red-500 text-sm font-medium ml-2 min-h-[1.25rem]">
+                      Please enter a valid email
+                    </p>
+                  ) : (
+                    ""
+                  )}
+                </div>
               </div>
             </div>
 
@@ -292,10 +305,12 @@ export default function AccountSettingPage() {
                   {showPassword ? <EyeOff size={20} /> : <Eye size={20} />}
                 </button>
               </div>
-              {errors.password && (
+              {errors.password ? (
                 <p className="text-red-500 text-sm font-medium ml-2 min-h-[1.25rem]">
                   Password must contain upper, lower, number & special character
                 </p>
+              ) : (
+                ""
               )}
             </div>
 
@@ -316,8 +331,7 @@ export default function AccountSettingPage() {
                   !formData.email
                 }
                 className={`h-12 w-[162px] rounded-[16px] text-white transition-all ${
-                  isUpdating ||
-                  Object.values(errors).some((err) => err)
+                  isUpdating || Object.values(errors).some((err) => err)
                     ? "bg-gray-400 cursor-not-allowed"
                     : "bg-gradient-to-r from-[#B306A7] to-[#4C0593]"
                 }`}

@@ -458,11 +458,11 @@ export default function ProfilePage() {
                     }`}
                   />
                   {/* Reserve space to prevent layout shift */}
-                  <p className="text-red-500 text-sm font-medium mt-1 min-h-[20px]">
-                    {errors.username
+                  
+                    {errors.username ? <p className="text-red-500 text-sm font-medium mt-1 min-h-[20px]">
                       ? "Username can only contain letters, numbers, and underscores"
-                      : ""}
-                  </p>
+                     
+                  </p> : ""}
                 </div>
 
                 {/* Website */}
@@ -533,7 +533,7 @@ export default function ProfilePage() {
                       handleInputChange(e);
                     }
                   }}
-                  className={`w-full h-[48px] bg-[#F8F8F8] px-4 text-[16px] font-medium text-[#1E1E1E] placeholder:text-gray-400 focus:outline-none rounded-[16px] border`}
+                  className={`w-full h-[48px] bg-[#F8F8F8] px-4 text-[16px] font-medium text-[#1E1E1E] placeholder:text-gray-400 focus:outline-none rounded-[16px] `}
                 />
 
               </div>

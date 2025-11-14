@@ -405,7 +405,10 @@ export default function ProfilePage() {
             />
           </div>
 
-          {/* Profile image */}
+         
+
+          <div className="max-w-[1200px] mx-auto px-4 lg:px-0 mt-0 flex flex-col gap-6">
+             {/* Profile image */}
           <div className="flex flex-col lg:flex-row lg:items-start mt-3 w-full max-w-6xl mx-auto">
             {/* Profile Picture */}
             <div className="w-40 h-40 lg:w-[198px] lg:h-[198px] rounded-full p-[5px] bg-gradient-to-r from-[#B008A6] via-[#8C099F] to-[#540A95] relative -mt-20 lg:-mt-32 mx-auto lg:mx-0 lg:flex-shrink-0 lg:-translate-x-11">
@@ -484,8 +487,6 @@ export default function ProfilePage() {
               </div>
             </div>
           </div>
-
-          <div className="max-w-[1200px] mx-auto px-4 lg:px-0 mt-0 flex flex-col gap-6">
             {/* Bio */}
             <div className="flex flex-col gap-1">
               <label className="text-[16px] font-medium font-['Roboto'] text-[#1E1E1E]">

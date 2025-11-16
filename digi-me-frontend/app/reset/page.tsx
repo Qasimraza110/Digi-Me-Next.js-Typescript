@@ -1,96 +1,75 @@
-'use client';
+// app/reset/page.tsx
+"use client"; // Only if you need client hooks for form and toast
 
-import { useState } from 'react';
-import { useRouter, useSearchParams } from 'next/navigation';
-import Image from 'next/image';
-import toast, { Toaster } from 'react-hot-toast';
+import { useState } from "react";
+import { useRouter } from "next/navigation";
+import Image from "next/image";
+import toast, { Toaster } from "react-hot-toast";
 import { AiOutlineEye, AiOutlineEyeInvisible } from "react-icons/ai";
+import { useSearchParams } from "next/navigation";
+
+// Helper function for styled toast
+const showToast = (type: "error" | "success", message: string) => {
+  toast[type](message, {
+    style: {
+      border: "1px solid #B306A7",
+      padding: "10px 20px",
+      color: "#fff",
+      background: "linear-gradient(90deg, #B306A7 0%, #4C0593 100%)",
+    },
+  });
+};
+
+// // Props passed by Next.js App Router
+// interface ResetPageProps {
+//   searchParams: { token?: string };
+// }
 
 export default function ResetPasswordPage() {
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+  const router = useRouter();
+  const searchParams = useSearchParams();
+  const token = searchParams.get("token");  // ✅ Correct for client component
+  const [password, setPassword] = useState("");
+  const [confirmPassword, setConfirmPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
-  const router = useRouter();
-  const searchParams = useSearchParams();
-  const token = searchParams.get('token');
-
   const handleResetPassword = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    // Validate passwords
-    if (password !== confirmPassword) {
-      toast.error('Passwords do not match!', {
-        style: {
-          border: '1px solid #B306A7',
-          padding: '10px 20px',
-          color: '#fff',
-          background: 'linear-gradient(90deg, #B306A7 0%, #4C0593 100%)',
-        },
-      });
+    if (!token) {
+      showToast("error", "Invalid or missing token.");
       return;
     }
 
-    if (!token) {
-      toast.error('Invalid or missing token.', {
-        style: {
-          border: '1px solid #B306A7',
-          padding: '10px 20px',
-          color: '#fff',
-          background: 'linear-gradient(90deg, #B306A7 0%, #4C0593 100%)',
-        },
-      });
+    if (password !== confirmPassword) {
+      showToast("error", "Passwords do not match!");
       return;
     }
 
     setIsLoading(true);
-
     try {
-      const response = await fetch("http://localhost:5000/api/auth/password/reset", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          token,
-          newPassword: password,
-          confirmPassword,
-        }),
-      });
+      const response = await fetch(
+        `${process.env.NEXT_PUBLIC_BACKEND_URL}/api/auth/password/reset`,
+        {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({ token, newPassword: password, confirmPassword }),
+        }
+      );
 
       const data = await response.json();
 
       if (response.ok) {
-        toast.success("Password updated successfully!", {
-          style: {
-            border: "1px solid #4C0593",
-            padding: "10px 20px",
-            color: "#fff",
-            background: "linear-gradient(90deg, #B306A7 0%, #4C0593 100%)",
-          },
-        });
-
+        showToast("success", "Password updated successfully!");
         setTimeout(() => router.push("/login"), 2000);
       } else {
-        toast.error(data?.message || "Failed to reset password. Try again.", {
-          style: {
-            border: "1px solid #B306A7",
-            padding: "10px 20px",
-            color: "#fff",
-            background: "linear-gradient(90deg, #B306A7 0%, #4C0593 100%)",
-          },
-        });
+        showToast("error", data?.message || "Failed to reset password. Try again.");
       }
     } catch (error) {
       console.error("Reset password error:", error);
-      toast.error("Something went wrong!", {
-        style: {
-          border: "1px solid #B306A7",
-          padding: "10px 20px",
-          color: "#fff",
-          background: "linear-gradient(90deg, #B306A7 0%, #4C0593 100%)",
-        },
-      });
+      showToast("error", "Something went wrong!");
     } finally {
       setIsLoading(false);
     }
@@ -101,33 +80,29 @@ export default function ResetPasswordPage() {
       <Toaster position="top-right" reverseOrder={false} />
 
       {/* Background */}
-        {/* Background */}
-    <div className="absolute inset-0 bg-[url('/merge.svg')] bg-top-center  bg-cover bg-no-repeat">
-      </div>
+      <div className="absolute inset-0 bg-[url('/merge.svg')] bg-top-center bg-cover bg-no-repeat" />
 
       {/* Overlay */}
       <div
         className="absolute bg-[url('/loginlogo.svg')] bg-no-repeat bg-contain w-[30%] h-full top-0 right-0"
-       
-      ></div>
+      />
 
       {/* Container */}
       <div className="relative flex flex-col lg:flex-row justify-center items-center w-full lg:w-[1200px] px-6 gap-12 z-10">
         {/* LEFT SECTION */}
-       {/* LEFT SECTION */}
-<div className="hidden lg:flex flex-col space-y-6 -ml-16"> {/* shifted 16 units left */}
-  <div className="flex items-center space-x-4">
-    <Image src="/group.svg" alt="Logo" width={83} height={74} />
-    <h1 className="font-bold text-black text-[48px] leading-[58px]">
-      DigiMe<span className="inline-block w-3 h-3 bg-black rounded-full ml-1"></span>
-    </h1>
-  </div>
-  <p className="text-black font-roboto font-bold text-[48px] leading-[64px] capitalize max-w-[580px]">
-    Just some details to <br />
-    <span className="text-[#AD06A6]">get you in!</span>
-  </p>
-</div>
-
+        <div className="hidden lg:flex flex-col space-y-6 -ml-16">
+          <div className="flex items-center space-x-4">
+            <Image src="/group.svg" alt="Logo" width={83} height={74} />
+            <h1 className="font-bold text-black text-[48px] leading-[58px]">
+              DigiMe
+              <span className="inline-block w-3 h-3 bg-black rounded-full ml-1"></span>
+            </h1>
+          </div>
+          <p className="text-black font-roboto font-bold text-[48px] leading-[64px] capitalize max-w-[580px]">
+            Just some details to <br />
+            <span className="text-[#AD06A6]">get you in!</span>
+          </p>
+        </div>
 
         {/* RIGHT SECTION (FORM) */}
         <form
@@ -186,10 +161,10 @@ export default function ResetPasswordPage() {
             disabled={isLoading}
             className="w-full text-white font-bold py-3 rounded-lg transition-all"
             style={{
-              background: 'linear-gradient(90deg, #B306A7 0%, #4C0593 100%)',
+              background: "linear-gradient(90deg, #B306A7 0%, #4C0593 100%)",
             }}
           >
-            {isLoading ? 'Submitting...' : 'Submit'}
+            {isLoading ? "Submitting..." : "Submit"}
           </button>
         </form>
       </div>

@@ -567,7 +567,7 @@ export default function PublicProfile() {
               <h2 className="text-lg font-semibold text-[#131313] mb-2">
                 Social Links
               </h2>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-4">
                 {["whatsapp", "facebook", "linkedin", "instagram"].map(
                   (key, i) => (
                     <a

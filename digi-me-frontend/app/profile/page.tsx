@@ -255,9 +255,9 @@ export default function ProfilePage() {
                   {/* Scan Button */}
                   <button
                     onClick={() => router.push("/scan")}
-                    className="w-16 h-16 bg-[#F3F3F3] rounded-[16px] flex cursor-pointer items-center justify-center hover:bg-gray-200 transition"
+                    className="w-13 h-13 bg-[#F3F3F3] rounded-[16px] flex cursor-pointer items-center justify-center hover:bg-gray-200 transition"
                   >
-                    <Image src="/scan.svg" alt="Scan" width={32} height={32} />
+                    <Image src="/scan.svg" alt="Scan" width={20} height={20} />
                   </button>
 
                   {/* Edit Button */}
@@ -265,7 +265,7 @@ export default function ProfilePage() {
                     onClick={() => router.push("/editpage")}
                     className="flex cursor-pointer items-center gap-3 bg-gradient-to-r from-[#B007A7] to-[#4F0594] text-white text-[16px] font-medium rounded-[16px] px-[24px] py-[12px] hover:opacity-90 transition"
                   >
-                    <Edit3 size={20} />
+                    <Edit3 size={15} />
                     Edit Profile
                   </button>
 
@@ -274,7 +274,7 @@ export default function ProfilePage() {
                     onClick={() => router.push("/accountsetting")}
                     className="flex cursor-pointer items-center gap-3 bg-[#0000000D] text-[#232323] text-[16px] font-medium rounded-[16px] px-[24px] py-[12px] hover:bg-[#00000020] transition"
                   >
-                    <Settings size={20} />
+                    <Settings size={18} />
                     Account Settings
                   </button>
                 </div>
@@ -317,7 +317,7 @@ export default function ProfilePage() {
                     onClick={() => router.push("/editpage")}
                     className="flex items-center gap-3 bg-gradient-to-r from-[#B007A7] to-[#4F0594] text-white text-[16px] font-medium rounded-[16px] px-[24px] py-[12px] hover:opacity-90 transition"
                   >
-                    <Edit3 size={20} />
+                    <Edit3 size={16} />
                   </button>
 
                   {/* Account Settings Button */}
@@ -325,7 +325,7 @@ export default function ProfilePage() {
                     onClick={() => router.push("/accountsetting")}
                     className="flex items-center gap-3 bg-[#0000000D] text-[#232323] text-[16px] font-medium rounded-[16px] px-[24px] py-[12px] hover:bg-[#00000020] transition"
                   >
-                    <Settings size={20} />
+                    <Settings size={18} />
                   </button>
                 </div>
               </div>
@@ -492,7 +492,7 @@ export default function ProfilePage() {
               <h2 className="text-lg font-semibold text-[#131313] mb-2">
                 Social Links
               </h2>
-              <div className="flex flex-wrap gap-2">
+              <div className="flex flex-wrap gap-4">
                 {["whatsapp", "facebook", "linkedin", "instagram"].map(
                   (key, i) => (
                     <a
@@ -546,7 +546,7 @@ export default function ProfilePage() {
                   onClick={handleCopyUrl}
                   className="flex items-center text-gray-400 justify-center gap-2 px-4 py-2 bg-[#0000000D] rounded-lg text-sm sm:text-base hover:bg-[#00000020] transition cursor-pointer"
                 >
-                  <Share2 size={15} /> Share Profile URL
+                  <Share2 size={20} /> Share Profile URL
                 </button>
                 <button
                   onClick={handleDownloadQr}

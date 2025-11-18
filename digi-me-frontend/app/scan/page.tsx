@@ -75,7 +75,7 @@ const handleScan = async (result: string | null) => {
   return (
     <div className="flex flex-col items-center justify-center h-screen bg-[#0F172A] text-white space-y-4">
       <h2 className="text-xl font-semibold flex items-center gap-2">
-        📷 Scan QR Code
+      Scan QR Code
       </h2>
 
       <div className="relative w-[300px] h-[300px] border border-gray-600 rounded-2xl overflow-hidden bg-black shadow-lg">
@@ -103,7 +103,7 @@ const handleScan = async (result: string | null) => {
 
       <ToastContainer />
 
-      {/* ✅ Style fix for video aspect & black line */}
+  
       <style jsx global>{`
         video {
           object-fit: cover !important;

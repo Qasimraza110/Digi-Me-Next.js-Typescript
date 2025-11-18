@@ -98,7 +98,20 @@ async function sendpasswordNotification(email) {
     to: email,
     subject: "Your DigiMe password has been changed",
     html: `<p>Your account password has been changed.</p>
-           `,
+          <p>You can now log in with your new password by clicking the button below:</p>
+
+      <p style="text-align: center; margin: 30px 0;">
+        <a href="http://localhost:3000/login" 
+           style="background-color: #4a90e2; color: white; padding: 12px 24px; border-radius: 6px; text-decoration: none; font-weight: bold;">
+          Login to DigiMe
+        </a>
+      </p>
+      
+      <hr style="margin-top: 30px;" />
+      <p style="font-size: 12px; color: #888;">
+        © ${new Date().getFullYear()} DigiMe. All rights reserved.
+      </p>
+      `,
   });
 
   // 🔹 Notify new email

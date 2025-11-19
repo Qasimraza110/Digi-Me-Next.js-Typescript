@@ -489,30 +489,34 @@ export default function ProfilePage() {
           </div>
             {/* Bio */}
             <div className="flex flex-col gap-1">
-              <label className="text-[16px] font-medium font-['Roboto'] text-[#1E1E1E]">
-                Bio
-              </label>
-              <textarea
-                name="bio"
-                value={user?.bio || ""}
-                onChange={handleInputChange}
-                placeholder="Lorem ipsum dolor sit amet..."
-                maxLength={400}
-                className={`w-full h-[88px] bg-[#F8F8F8] rounded-[16px] px-4 py-2 text-[16px] font-medium text-[#1E1E1E] placeholder:text-gray-400 focus:outline-none resize-none border ${
-                  errors.bio ? "border-red-500" : "border-[#EEEEEE]"
-                }`}
-              />
-              <div className="flex justify-between items-center ">
-                {errors.bio && (
-                  <p className="text-red-500 text-sm font-medium">
-                    Bio is invalid, no more than 400 words
-                  </p>
-                )}
-                <span className="text-gray-500  text-sm ml-auto">
-                  {user?.bio?.length || 0}/400
-                </span>
-              </div>
-            </div>
+  <label className="text-[16px] font-medium font-['Roboto'] text-[#1E1E1E]">
+    Bio
+  </label>
+
+  <textarea
+    name="bio"
+    value={user?.bio || ""}
+    onChange={handleInputChange}
+    placeholder="Lorem ipsum dolor sit amet..."
+    maxLength={400}
+    className={`w-full h-[88px] bg-[#F8F8F8] rounded-[16px] px-4 py-2 text-[16px] font-medium text-[#1E1E1E] placeholder:text-gray-400 focus:outline-none resize-none border [overflow-y:hidden] ${
+      errors.bio ? "border-red-500" : "border-[#EEEEEE]"
+    }`}
+  />
+
+  <div className="flex justify-between items-center">
+    {errors.bio && (
+      <p className="text-red-500 text-sm font-medium">
+        Bio is invalid, no more than 400 words
+      </p>
+    )}
+
+    <span className="text-gray-500 text-sm ml-auto">
+      {user?.bio?.length || 0}/400
+    </span>
+  </div>
+</div>
+
 
             {/* Phone + Email */}
             <div className="flex flex-col lg:flex-row gap-4">
